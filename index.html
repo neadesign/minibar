@@ -194,7 +194,7 @@
   </div>
 
   <div class="checkout">
-    <button onclick="sendOrder()">Invia ordine / Paga</button>
+    <button id="checkout-button" onclick="sendOrder()">Invia ordine / Paga</button>
   </div>
 
   <script>
@@ -231,24 +231,26 @@
     }
 
     function getLabel(type, lang) {
-      const labels = {
-        add: { IT: 'Aggiungi', EN: 'Add', FR: 'Ajouter', ES: 'Añadir' },
-        cart: { IT: 'Il tuo carrello', EN: 'Your Cart', FR: 'Votre Panier', ES: 'Tu Carrito' },
-        prod: { IT: 'Prodotto', EN: 'Product', FR: 'Produit', ES: 'Producto' },
-        qty: { IT: 'Quantità', EN: 'Quantity', FR: 'Quantité', ES: 'Cantidad' },
-        price: { IT: 'Prezzo', EN: 'Price', FR: 'Prix', ES: 'Precio' },
-        total: { IT: 'Totale', EN: 'Total', FR: 'Total', ES: 'Total' }
-      };
+  const labels = {
+  add: { IT: 'Aggiungi', EN: 'Add', FR: 'Ajouter', ES: 'Añadir' },
+  cart: { IT: 'Il tuo carrello', EN: 'Your Cart', FR: 'Votre Panier', ES: 'Tu Carrito' },
+  prod: { IT: 'Prodotto', EN: 'Product', FR: 'Produit', ES: 'Producto' },
+  qty: { IT: 'Quantità', EN: 'Quantity', FR: 'Quantité', ES: 'Cantidad' },
+  price: { IT: 'Prezzo', EN: 'Price', FR: 'Prix', ES: 'Precio' },
+  total: { IT: 'Totale', EN: 'Total', FR: 'Total', ES: 'Total' },
+  checkout: { IT: 'Invia ordine / Paga', EN: 'Send order / Pay', FR: 'Envoyer la commande / Payer', ES: 'Enviar pedido / Pagar' }
+};
       return labels[type][lang];
     }
 
     function updateLabels(lang) {
-      document.getElementById('cart-title').innerText = getLabel('cart', lang);
-      document.getElementById('th-product').innerText = getLabel('prod', lang);
-      document.getElementById('th-qty').innerText = getLabel('qty', lang);
-      document.getElementById('th-price').innerText = getLabel('price', lang);
-      updateCart();
-    }
+  document.getElementById('cart-title').innerText = getLabel('cart', lang);
+  document.getElementById('th-product').innerText = getLabel('prod', lang);
+  document.getElementById('th-qty').innerText = getLabel('qty', lang);
+  document.getElementById('th-price').innerText = getLabel('price', lang);
+  document.getElementById('checkout-button').innerText = getLabel('checkout', lang);
+  updateCart();
+}
 
     function addToCart(name, price, btn) {
       const qty = parseInt(btn.previousElementSibling.previousElementSibling.value);
