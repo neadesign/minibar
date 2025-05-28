@@ -75,7 +75,7 @@ ${summary}`;
     }
 
     try {
-      await fetch('https://hooks.zapier.com/hooks/catch/15200900/2js6103/001', {
+      await fetch('https://hooks.zapier.com/hooks/catch/15200900/2je25wv/', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
