@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minibar NEA</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #fcfcfc;
+      margin: 0;
+      padding: 20px;
+      color: #333;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    header img {
+      height: 60px;
+      margin-bottom: 10px;
+    }
+
+    h1 {
+      font-size: 36px;
+      font-weight: 700;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .lang-select {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    select {
+      padding: 6px 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .product-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      justify-content: center;
+    }
+
+    .product {
+      border: 1px solid #ddd;
+      border-radius: 16px;
+      padding: 20px;
+      width: 220px;
+      text-align: center;
+      background: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.04);
+      transition: transform 0.2s;
+    }
+
+    .product:hover {
+      transform: translateY(-4px);
+    }
+
+    .product h3 {
+      margin-bottom: 12px;
+      font-size: 18px;
+    }
+
+    .product p {
+      font-weight: bold;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+
+    input[type="number"] {
+      width: 60px;
+      padding: 6px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    button {
+      padding: 8px 16px;
+      margin-top: 10px;
+      cursor: pointer;
+      background-color: #0077cc;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      transition: background-color 0.2s;
+    }
+
+    button:hover {
+      background-color: #005fa3;
+    }
+
+    .remove-btn {
+      background-color: #e74c3c;
+      border-radius: 6px;
+      padding: 4px 8px;
+      color: white;
+      font-size: 14px;
+    }
+
+    .cart {
+      margin-top: 60px;
+      max-width: 800px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .cart h2 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      border-radius: 12px;
+      overflow: hidden;
+      font-size: 15px;
+    }
+
+    th, td {
+      border: 1px solid #eee;
+      padding: 12px;
+      text-align: center;
+    }
+
+    th {
+      background-color: #f9f9f9;
+      font-weight: bold;
+    }
+
+    #total {
+      text-align: right;
+      margin-top: 15px;
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .checkout {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    .checkout button {
+      background-color: #0077cc;
+      font-size: 16px;
+      padding: 10px 30px;
+      border-radius: 10px;
+    }
+
+    .checkout button:hover {
+      background-color: #005fa3;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://raw.githubusercontent.com/neadesign/Zielinska/refs/heads/main/favicon.png" alt="Nea logo">
+    <h1>Minibar NEA</h1>
+  </header>
+
+  <div class="lang-select">
+    <label for="lang">Lingua / Language:</label>
+    <select id="lang" onchange="loadProducts()">
+      <option value="IT">Italiano</option>
+      <option value="EN">English</option>
+      <option value="FR">Français</option>
+      <option value="ES">Español</option>
+    </select>
+  </div>
+
+  <div id="products" class="product-list"></div>
+
+  <div class="cart">
+    <h2 id="cart-title">Il tuo carrello</h2>
+    <table id="cart-table">
+      <thead><tr><th id="th-product">Prodotto</th><th id="th-qty">Quantità</th><th id="th-price">Prezzo</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <h3 id="total">Totale: €0.00</h3>
+  </div>
+
+  <div class="checkout">
+    <button onclick="sendOrder()">Invia ordine / Paga</button>
+  </div>
+
+  <script>
+    const sheetURL = 'https://raw.githubusercontent.com/neadesign/minibar/main/listino.csv';
+    let cart = [];
+
+    function loadProducts() {
+      const lang = document.getElementById('lang').value;
+      document.getElementById('products').innerHTML = '';
+      Papa.parse(sheetURL, {
+        download: true,
+        header: true,
+        complete: function(results) {
+          results.data.forEach(item => {
+            const nameKey = "Nome " + lang;
+            const name = item[nameKey]?.trim();
+            const price = parseFloat(item["Prezzo"]);
+            if (!name || isNaN(price)) return;
+
+            const productDiv = document.createElement('div');
+            productDiv.className = 'product';
+            productDiv.innerHTML = `
+              <h3>${name}</h3>
+              <p>€${price.toFixed(2)}</p>
+              <input type="number" min="1" value="1" />
+              <br>
+              <button onclick="addToCart('${name}', ${price}, this)">${getLabel('add', lang)}</button>
+            `;
+            document.getElementById('products').appendChild(productDiv);
+          });
+          updateLabels(lang);
+        }
+      });
+    }
+
+    function getLabel(type, lang) {
+      const labels = {
+        add: { IT: 'Aggiungi', EN: 'Add', FR: 'Ajouter', ES: 'Añadir' },
+        cart: { IT: 'Il tuo carrello', EN: 'Your Cart', FR: 'Votre Panier', ES: 'Tu Carrito' },
+        prod: { IT: 'Prodotto', EN: 'Product', FR: 'Produit', ES: 'Producto' },
+        qty: { IT: 'Quantità', EN: 'Quantity', FR: 'Quantité', ES: 'Cantidad' },
+        price: { IT: 'Prezzo', EN: 'Price', FR: 'Prix', ES: 'Precio' },
+        total: { IT: 'Totale', EN: 'Total', FR: 'Total', ES: 'Total' }
+      };
+      return labels[type][lang];
+    }
+
+    function updateLabels(lang) {
+      document.getElementById('cart-title').innerText = getLabel('cart', lang);
+      document.getElementById('th-product').innerText = getLabel('prod', lang);
+      document.getElementById('th-qty').innerText = getLabel('qty', lang);
+      document.getElementById('th-price').innerText = getLabel('price', lang);
+      updateCart();
+    }
+
+    function addToCart(name, price, btn) {
+      const qty = parseInt(btn.previousElementSibling.previousElementSibling.value);
+      cart.push({ name, price, qty });
+      updateCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
+    }
+
+    function updateCart() {
+      const tbody = document.querySelector('#cart-table tbody');
+      tbody.innerHTML = '';
+      let total = 0;
+      cart.forEach((item, index) => {
+        total += item.price * item.qty;
+        const row = `<tr>
+          <td>${item.name}</td>
+          <td>${item.qty}</td>
+          <td>€${(item.price * item.qty).toFixed(2)}</td>
+          <td><button class='remove-btn' onclick='removeFromCart(${index})'>✖</button></td>
+        </tr>`;
+        tbody.innerHTML += row;
+      });
+      const lang = document.getElementById('lang').value;
+      document.getElementById('total').innerText = `${getLabel('total', lang)}: €${total.toFixed(2)}`;
+    }
+
+    async function sendOrder() {
+      const orderDetails = cart.map(item => `- ${item.name}: ${item.qty} × €${item.price.toFixed(2)} = €${(item.qty * item.price).toFixed(2)}`).join('\n');
+      const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
+      if (total <= 0) {
+        alert("Per favore aggiungi almeno un prodotto al carrello.");
+        return;
+      }
+      const payload = {
+        type: 'minibar',
+        cart,
+        orderDetails,
+        total,
+        orderDetailsShort: orderDetails,
+        orderDetailsLong: orderDetails,
+        delivery_date: '2025-12-31',
+        phone: '-'
+      };
+
+      try {
+        const response = await fetch('https://minibar.onrender.com/create-checkout-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        const result = await response.json();
+        if (result && result.url) {
+          window.location.href = result.url;
+        } else {
+          throw new Error('URL mancante nella risposta.');
+        }
+      } catch (error) {
+        console.error('Errore durante il checkout:', error);
+        alert("Errore durante il checkout: " + error.message);
+      }
+    }
+
+    window.onload = loadProducts;
+  </script>
+</body>
+</html>
