@@ -220,7 +220,14 @@
         header: true,
         complete: function(results) {
           results.data.forEach(item => {
-            const nameKey = "Nome " + lang;
+            const langMap = {
+  IT: "Prodotto (IT)",
+  EN: "Product (EN)",
+  FR: "Produit (FR)",
+  ES: "Producto (ES)"
+};
+const nameKey = langMap[lang];
+
             const name = item[nameKey]?.trim();
             const price = parseFloat(item["Prezzo"]);
             if (!name || isNaN(price)) return;
