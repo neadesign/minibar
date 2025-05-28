@@ -1,5 +1,11 @@
 ID,Nome IT,Nome EN,Nome FR,Nome ES,Prezzo
 1,Acqua naturale 50cl,Still water 50cl,Eau plate 50cl,Agua sin gas 50cl,0.80
-2,Barretta cioccolato,Chocolate bar,Barre chocolatée,Barrita de chocolate,0.85
-3,Biscotti,Biscuits,Biscuits,Galletas,0.90
-4,Patatine,Chips,Chips,Patatas fritas,1.00
+2,Succhi di frutta (brick 20cl),Fruit juice (brick 20cl),Jus de fruit (brique 20cl),Zumo de fruta (brick 20cl),0.90
+3,Bibita tipo cola/aranciata 33cl,Soft drink cola/orange 33cl,Soda type cola/orange 33cl,Refresco cola/naranja 33cl,0.95
+4,Barretta cioccolato tipo Kinder,Kinder-type chocolate bar,Barre chocolatée type Kinder,Barrita de chocolate tipo Kinder,0.85
+5,Biscotti monoporzione,Single-pack biscuits,Biscuits individuels,Galletas monoporción,0.90
+6,Muffin o crostatine confezionate,Packaged muffin or tart,Muffin ou tartelette emballée,Muffin o tartaleta envasada,1.00
+7,Gomme o caramelle,Gum or candies,Chewing-gum ou bonbons,Chicle o caramelos,0.70
+8,Patatine mini 30g,Mini chips 30g,Mini chips 30g,Patatas fritas mini 30g,0.90
+9,Arachidi/salatini mini,Mini peanuts/savories,Arachides / snacks mini,Cacahuetes/saladitos mini,0.85
+10,Cracker o grissini,Crackers or breadsticks,Crackers ou gressins,Crackers o colines,0.75
