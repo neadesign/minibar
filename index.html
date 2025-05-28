@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minibar NEA</title>
+  <title>Minibar Neaspace Auto-Check-out</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
   <script src="https://js.stripe.com/v3/"></script>
@@ -170,18 +170,17 @@
 <body>
   <header>
     <img src="https://raw.githubusercontent.com/neadesign/Zielinska/refs/heads/main/favicon.png" alt="Nea logo">
-    <h1>Minibar NEA</h1>
+    <h1>Minibar Naespace Auto Check-out</h1>
   </header>
 
   <div class="lang-select">
-    <label for="lang">Lingua / Language:</label>
-    <select id="lang" onchange="loadProducts()">
-      <option value="IT">Italiano</option>
-      <option value="EN">English</option>
-      <option value="FR">Français</option>
-      <option value="ES">Español</option>
-    </select>
-  </div>
+  <span onclick="setLang('IT')" style="cursor:pointer; font-size: 24px; margin: 0 10px;">🇮🇹</span>
+  <span onclick="setLang('EN')" style="cursor:pointer; font-size: 24px; margin: 0 10px;">🇬🇧</span>
+  <span onclick="setLang('FR')" style="cursor:pointer; font-size: 24px; margin: 0 10px;">🇫🇷</span>
+  <span onclick="setLang('ES')" style="cursor:pointer; font-size: 24px; margin: 0 10px;">🇪🇸</span>
+</div>
+<input type="hidden" id="lang" value="IT">
+
 
   <div id="products" class="product-list"></div>
 
@@ -315,6 +314,10 @@
         alert("Errore durante il checkout: " + error.message);
       }
     }
+function setLang(code) {
+  document.getElementById('lang').value = code;
+  loadProducts();
+}
 
     window.onload = loadProducts;
   </script>
