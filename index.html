@@ -254,11 +254,23 @@ function getLabel(type, lang) {
     total: { IT: 'Totale', EN: 'Total', FR: 'Total', ES: 'Total' },
     checkout: { IT: 'Invia ordine / Paga', EN: 'Send order / Pay', FR: 'Envoyer la commande / Payer', ES: 'Enviar pedido / Pagar' },
     popup: {
-      IT: 'Stai per essere inoltrato alla pagina di pagamento. Attendi qualche secondo…',
-      EN: 'You are about to be redirected to the payment page. Please wait a few seconds…',
-      FR: 'Vous allez être redirigé vers la page de paiement. Veuillez patienter quelques secondes…',
-      ES: 'Estás a punto de ser redirigido a la página de pago. Por favor, espera unos segundos…'
-    }
+  IT: 'Stai per essere inoltrato alla pagina di pagamento. Attendi qualche secondo…',
+  EN: 'You are about to be redirected to the payment page. Please wait a few seconds…',
+  FR: 'Vous allez être redirigé vers la page de paiement. Veuillez patienter quelques secondes…',
+  ES: 'Estás a punto de ser redirigido a la página de pago. Por favor, espera unos segundos…'
+},
+smallgift: {
+  IT: 'Gli ordini inferiori a 50 centesimi sono offerti dalla casa. Grazie!',
+  EN: 'Orders under 50 cents are on the house. Enjoy!',
+  FR: 'Les commandes inférieures à 50 centimes sont offertes par la maison. Merci !',
+  ES: 'Los pedidos inferiores a 50 céntimos corren por cuenta de la casa. ¡Gracias!'
+},
+    empty: {
+  IT: "Per favore aggiungi almeno un prodotto al carrello.",
+  EN: "Please add at least one item to the cart.",
+  FR: "Veuillez ajouter au moins un produit au panier.",
+  ES: "Por favor, añade al menos un producto al carrito."
+}
   };
   return labels[type][lang];
 }
@@ -302,14 +314,26 @@ function getLabel(type, lang) {
     }
 
     async function sendOrder() {
+      const button = document.getElementById('checkout-button');
+button.disabled = true;
+button.innerText = getLabel('popup', document.getElementById('lang').value);
+
       const lang = document.getElementById('lang').value; 
       const orderDetails = cart.map(item => `- ${item.name}: ${item.qty} × €${item.price.toFixed(2)} = €${(item.qty * item.price).toFixed(2)}`).join('\n');
       const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
       if (total <= 0) {
-        alert("Per favore aggiungi almeno un prodotto al carrello.");
-        return;
-      }
+  alert(getLabel('empty', lang));
+  button.disabled = false;
+  button.innerText = getLabel('checkout', lang);
+  return;
+}
 
+if (total < 0.5) {
+  alert(getLabel('smallgift', lang));
+  button.disabled = false;
+  button.innerText = getLabel('checkout', lang);
+  return;
+}
       alert(getLabel('popup', lang)); // <--- NUOVA RIGA
       const payload = {
   type: 'minibar',
@@ -337,6 +361,8 @@ function getLabel(type, lang) {
         }
       } catch (error) {
         console.error('Errore durante il checkout:', error);
+        button.disabled = false;
+button.innerText = getLabel('checkout', document.getElementById('lang').value);
         alert("Errore durante il checkout: " + error.message);
       }
     }
