@@ -168,9 +168,26 @@
   color: #555;
   opacity: 0.8;
 }
+    #toastOverlay {
+  display: none;
+  position: fixed;
+  top: 40%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.85);
+  color: #fff;
+  padding: 20px 30px;
+  border-radius: 10px;
+  font-size: 16px;
+  z-index: 10000;
+  text-align: center;
+  max-width: 80%;
+}
   </style>
 </head>
 <body>
+  <div id="toastOverlay">Stai per essere inoltrato alla pagina di pagamento...</div>
+
   <header>
     <img src="https://raw.githubusercontent.com/neadesign/Zielinska/refs/heads/main/favicon.png" alt="Nea logo">
     <h1>Minibar Naespace Auto Check-out</h1>
@@ -312,30 +329,36 @@ smallgift: {
       const lang = document.getElementById('lang').value;
       document.getElementById('total').innerText = `${getLabel('total', lang)}: €${total.toFixed(2)}`;
     }
+function showToast(message, duration = 7000) {
+  const toast = document.getElementById('toastOverlay');
+  toast.innerText = message;
+  toast.style.display = 'block';
+  setTimeout(() => {
+    toast.style.display = 'none';
+  }, duration);
+}
 
     async function sendOrder() {
       const button = document.getElementById('checkout-button');
 button.disabled = true;
-button.innerText = getLabel('popup', document.getElementById('lang').value);
 
       const lang = document.getElementById('lang').value; 
       const orderDetails = cart.map(item => `- ${item.name}: ${item.qty} × €${item.price.toFixed(2)} = €${(item.qty * item.price).toFixed(2)}`).join('\n');
       const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
-      if (total <= 0) {
-  alert(getLabel('empty', lang));
+if (total <= 0) {
+  showToast(getLabel('empty', lang), 4000);
   button.disabled = false;
   button.innerText = getLabel('checkout', lang);
   return;
 }
 
 if (total < 0.5) {
-  alert(getLabel('smallgift', lang));
+  showToast(getLabel('smallgift', lang), 4000);
   button.disabled = false;
   button.innerText = getLabel('checkout', lang);
   return;
 }
-      alert(getLabel('popup', lang)); // <--- NUOVA RIGA
-      const payload = {
+            const payload = {
   type: 'minibar',
   source: 'minibar',
   cart,
@@ -355,8 +378,18 @@ if (total < 0.5) {
         });
         const result = await response.json();
         if (result && result.url) {
-          window.location.href = result.url;
-        } else {
+  showToast(getLabel('popup', lang), 7000);
+
+  // Riabilita il pulsante PRIMA del redirect
+  button.disabled = false;
+  button.innerText = getLabel('checkout', lang);
+
+  // Dopo 7s, avvia il redirect
+  setTimeout(() => {
+    window.location.href = result.url;
+  }, 7000);
+}
+         else {
           throw new Error('URL mancante nella risposta.');
         }
       } catch (error) {
