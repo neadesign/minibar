@@ -79,21 +79,17 @@ ${summary}`;
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          orderDetails: summary,
-          deliveryDate: session.metadata?.delivery_date,
-          source: 'stripe-webhook-minibar',
-          language: 'fr'
-        })
-      });
-      console.log('✅ Inviato a Zapier con successo');
-    } catch (err) {
-      console.error('❌ Errore invio Zapier:', err.message);
-    }
-  }
-
-  res.sendStatus(200);
+          type: "minibar",
+    source: "minibar-zapier",  // 👈 campo costante
+    cart,
+    orderDetails,
+    orderDetailsShort,
+    orderDetailsLong,
+    total,
+    delivery_date,
+    phone
+  })
 });
-
 app.use(express.json());
 
 app.post('/create-checkout-session', async (req, res) => {
