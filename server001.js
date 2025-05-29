@@ -154,7 +154,6 @@ app.post('/create-checkout-session', async (req, res) => {
       success_url: 'https://neadesign.github.io/Zielinska/success001.html',
       cancel_url: 'https://neadesign.github.io/Zielinska/cancel001.html',
       metadata: {
-        total: numericTotal.toFixed(2),
         source: 'minibar'
       }
     });
