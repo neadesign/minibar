@@ -90,6 +90,14 @@ ${summary}`;
     phone
   })
 });
+       console.log('✅ Inviato a Zapier con successo');
+    } catch (err) {
+      console.error('❌ Errore invio Zapier:', err.message);
+    }
+  }
+
+  res.sendStatus(200);
+});
 app.use(express.json());
 
 app.post('/create-checkout-session', async (req, res) => {
