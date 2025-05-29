@@ -244,18 +244,24 @@ const nameKey = langMap[lang];
       });
     }
 
-    function getLabel(type, lang) {
+function getLabel(type, lang) {
   const labels = {
-  add: { IT: 'Aggiungi', EN: 'Add', FR: 'Ajouter', ES: 'Añadir' },
-  cart: { IT: 'Il tuo carrello', EN: 'Your Cart', FR: 'Votre Panier', ES: 'Tu Carrito' },
-  prod: { IT: 'Prodotto', EN: 'Product', FR: 'Produit', ES: 'Producto' },
-  qty: { IT: 'Quantità', EN: 'Quantity', FR: 'Quantité', ES: 'Cantidad' },
-  price: { IT: 'Prezzo', EN: 'Price', FR: 'Prix', ES: 'Precio' },
-  total: { IT: 'Totale', EN: 'Total', FR: 'Total', ES: 'Total' },
-  checkout: { IT: 'Invia ordine / Paga', EN: 'Send order / Pay', FR: 'Envoyer la commande / Payer', ES: 'Enviar pedido / Pagar' }
-};
-      return labels[type][lang];
+    add: { IT: 'Aggiungi', EN: 'Add', FR: 'Ajouter', ES: 'Añadir' },
+    cart: { IT: 'Il tuo carrello', EN: 'Your Cart', FR: 'Votre Panier', ES: 'Tu Carrito' },
+    prod: { IT: 'Prodotto', EN: 'Product', FR: 'Produit', ES: 'Producto' },
+    qty: { IT: 'Quantità', EN: 'Quantity', FR: 'Quantité', ES: 'Cantidad' },
+    price: { IT: 'Prezzo', EN: 'Price', FR: 'Prix', ES: 'Precio' },
+    total: { IT: 'Totale', EN: 'Total', FR: 'Total', ES: 'Total' },
+    checkout: { IT: 'Invia ordine / Paga', EN: 'Send order / Pay', FR: 'Envoyer la commande / Payer', ES: 'Enviar pedido / Pagar' },
+    popup: {
+      IT: 'Stai per essere inoltrato alla pagina di pagamento. Attendi qualche secondo…',
+      EN: 'You are about to be redirected to the payment page. Please wait a few seconds…',
+      FR: 'Vous allez être redirigé vers la page de paiement. Veuillez patienter quelques secondes…',
+      ES: 'Estás a punto de ser redirigido a la página de pago. Por favor, espera unos segundos…'
     }
+  };
+  return labels[type][lang];
+}
 
     function updateLabels(lang) {
   document.getElementById('cart-title').innerText = getLabel('cart', lang);
@@ -296,12 +302,15 @@ const nameKey = langMap[lang];
     }
 
     async function sendOrder() {
+      const lang = document.getElementById('lang').value; 
       const orderDetails = cart.map(item => `- ${item.name}: ${item.qty} × €${item.price.toFixed(2)} = €${(item.qty * item.price).toFixed(2)}`).join('\n');
       const total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
       if (total <= 0) {
         alert("Per favore aggiungi almeno un prodotto al carrello.");
         return;
       }
+
+      alert(getLabel('popup', lang)); // <--- NUOVA RIGA
       const payload = {
   type: 'minibar',
   source: 'minibar',
