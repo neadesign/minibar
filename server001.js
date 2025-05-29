@@ -74,26 +74,33 @@ ${summary}`;
       console.error('❌ Errore invio Telegram:', err.message);
     }
 
-    try {
-      await fetch('https://hooks.zapier.com/hooks/catch/15200900/2je25wv/', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          type: "minibar",
-    source: "minibar-zapier",  // 👈 campo costante
-    cart,
-    orderDetails,
-    orderDetailsShort,
-    orderDetailsLong,
-    total,
-    delivery_date,
-    phone
-  })
-});
-       console.log('✅ Inviato a Zapier con successo');
-    } catch (err) {
-      console.error('❌ Errore invio Zapier:', err.message);
-    }
+if (session.metadata?.source === 'minibar') {
+  try {
+    const summary = sessionOrderDetails.get(session.id) || session.metadata?.orderDetails || '⚠️ Nessun dettaglio';
+    const total = session.metadata?.total || '0.00';
+    const delivery_date = session.metadata?.delivery_date || '';
+    const orderId = session.metadata?.orderId || 'N/A';
+
+    await fetch('https://hooks.zapier.com/hooks/catch/15200900/2je25wv/', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: "minibar",
+        source: "minibar-zapier",
+        orderDetails: summary,
+        orderDetailsShort: summary,
+        orderDetailsLong: summary,
+        total,
+        delivery_date,
+        phone: '-',  // oppure recuperalo se lo aggiungi nei metadata
+        orderId
+      })
+    });
+    console.log('✅ Inviato a Zapier (minibar)');
+  } catch (err) {
+    console.error('❌ Errore invio Zapier (minibar):', err.message);
+  }
+}
   }
 
   res.sendStatus(200);
@@ -150,9 +157,9 @@ try {
       success_url: 'https://neadesign.github.io/Zielinska/success001.html',
       cancel_url: 'https://neadesign.github.io/Zielinska/cancel001.html',
       metadata: {
-        total: numericTotal.toFixed(2),
-        orderId
-      }
+  total: numericTotal.toFixed(2),
+  source: 'minibar'  // 👈 questo è il filtro chiave
+}
     });
 
     sessionOrderDetails.set(session.id, orderDetailsLong);
