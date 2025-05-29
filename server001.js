@@ -131,7 +131,7 @@ ${orderDetailsLong}`;
     console.error('❌ Errore invio Email o Telegram:', err.message);
   }
 
-  try {
+try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
@@ -147,8 +147,6 @@ ${orderDetailsLong}`;
       cancel_url: 'https://neadesign.github.io/Zielinska/cancel001.html',
       metadata: {
         total: numericTotal.toFixed(2),
-        delivery_date: delivery_date || '',
-        orderDetails: orderDetailsShort || '',
         orderId
       }
     });
