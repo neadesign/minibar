@@ -41,70 +41,69 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
 
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
-    let summary = session.metadata?.orderDetails || '⚠️ Nessun dettaglio ordine';
-    if (sessionOrderDetails.has(session.id)) {
-      summary = sessionOrderDetails.get(session.id);
+    const source = (session.metadata?.source || '').toLowerCase();
+    console.log('🔍 Webhook ricevuto con source:', source);
+
+    if (source === 'minibar') {
+      let summary = session.metadata?.orderDetails || '⚠️ Nessun dettaglio ordine';
+      if (sessionOrderDetails.has(session.id)) {
+        summary = sessionOrderDetails.get(session.id);
+      }
+
+      const orderId = session.metadata?.orderId || 'Ordine';
+      const message = `🍼 *Minibar – ${orderId}*\n\n${summary}`;
+
+      try {
+        await transporter.sendMail({
+          from: 'Minibar Neaspace <design@francescorossi.co>',
+          to: 'design@francescorossi.co',
+          subject: `✅ Ordine minibar confermato – ${orderId}`,
+          text: message.replace(/\*/g, '')
+        });
+        console.log('📧 Email inviata');
+      } catch (err) {
+        console.error('❌ Errore invio email:', err.message);
+      }
+
+      try {
+        await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
+          chat_id: TELEGRAM_CHAT_ID,
+          text: message,
+          parse_mode: 'Markdown'
+        });
+        console.log('✅ Notifica Telegram inviata');
+      } catch (err) {
+        console.error('❌ Errore invio Telegram:', err.message);
+      }
+
+      try {
+        await fetch('https://hooks.zapier.com/hooks/catch/15200900/2je25wv/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            type: "minibar",
+            source: "minibar-zapier",
+            orderDetails: summary,
+            orderDetailsShort: summary,
+            orderDetailsLong: summary,
+            total: session.metadata?.total || '0.00',
+            delivery_date: session.metadata?.delivery_date || '',
+            phone: '-',
+            orderId
+          })
+        });
+        console.log('✅ Inviato a Zapier (minibar)');
+      } catch (err) {
+        console.error('❌ Errore invio Zapier (minibar):', err.message);
+      }
+    } else {
+      console.log(`⛔ Webhook ignorato: source ≠ 'minibar' (trovato: '${source}')`);
     }
-
-    const orderId = session.metadata?.orderId || 'Ordine';
-    const message = `🍼 *Minibar – ${orderId}*
-
-${summary}`;
-
-    try {
-      await transporter.sendMail({
-        from: 'Minibar Neaspace <design@francescorossi.co>',
-        to: 'design@francescorossi.co',
-        subject: `✅ Ordine minibar confermato – ${orderId}`,
-        text: message.replace(/\*/g, '')
-      });
-      console.log('📧 Email inviata');
-    } catch (err) {
-      console.error('❌ Errore invio email:', err.message);
-    }
-
-    try {
-      await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
-        chat_id: TELEGRAM_CHAT_ID,
-        text: message,
-        parse_mode: 'Markdown'
-      });
-      console.log('✅ Notifica Telegram inviata');
-    } catch (err) {
-      console.error('❌ Errore invio Telegram:', err.message);
-    }
-
-if (session.metadata?.source === 'minibar') {
-  try {
-    const summary = sessionOrderDetails.get(session.id) || session.metadata?.orderDetails || '⚠️ Nessun dettaglio';
-    const total = session.metadata?.total || '0.00';
-    const delivery_date = session.metadata?.delivery_date || '';
-    const orderId = session.metadata?.orderId || 'N/A';
-
-    await fetch('https://hooks.zapier.com/hooks/catch/15200900/2je25wv/', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        type: "minibar",
-        source: "minibar-zapier",
-        orderDetails: summary,
-        orderDetailsShort: summary,
-        orderDetailsLong: summary,
-        total,
-        delivery_date,
-        phone: '-',  // oppure recuperalo se lo aggiungi nei metadata
-        orderId
-      })
-    });
-    console.log('✅ Inviato a Zapier (minibar)');
-  } catch (err) {
-    console.error('❌ Errore invio Zapier (minibar):', err.message);
-  }
-}
   }
 
   res.sendStatus(200);
 });
+
 app.use(express.json());
 
 app.post('/create-checkout-session', async (req, res) => {
@@ -119,9 +118,7 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 
   const orderId = crypto.randomUUID().slice(0, 8);
-  const preMessage = `📥 *Nuovo ordine MINIBAR in attesa di pagamento – ${orderId}*
-
-${orderDetailsLong}`;
+  const preMessage = `📥 *Nuovo ordine MINIBAR in attesa di pagamento – ${orderId}*\n\n${orderDetailsLong}`;
 
   try {
     await transporter.sendMail({
@@ -142,7 +139,7 @@ ${orderDetailsLong}`;
     console.error('❌ Errore invio Email o Telegram:', err.message);
   }
 
-try {
+  try {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
@@ -157,9 +154,9 @@ try {
       success_url: 'https://neadesign.github.io/Zielinska/success001.html',
       cancel_url: 'https://neadesign.github.io/Zielinska/cancel001.html',
       metadata: {
-  total: numericTotal.toFixed(2),
-  source: 'minibar'  // 👈 questo è il filtro chiave
-}
+        total: numericTotal.toFixed(2),
+        source: 'minibar'
+      }
     });
 
     sessionOrderDetails.set(session.id, orderDetailsLong);
