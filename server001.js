@@ -36,43 +36,42 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
     console.error('❌ Webhook verification failed:', err.message);
     return res.status(400).send(`Webhook Error: ${err.message}`);
   }
-
-  if (event.type === 'checkout.session.completed') {
+if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const source = (session.metadata?.source || '').toLowerCase();
     console.log('🔍 Webhook ricevuto con source:', source);
 
     if (source === 'minibar') {
-      const orderId = session.metadata?.orderId || 'Ordine';
-      let summary = session.metadata?.orderDetails || '⚠️ Nessun dettaglio ordine';
-      if (sessionOrderDetails.has(session.id)) {
-        summary = sessionOrderDetails.get(session.id);
-      }
+        const orderId = session.metadata?.orderId || 'Ordine';
+        let summary = session.metadata?.orderDetails || '⚠️ Nessun dettaglio ordine';
+        if (sessionOrderDetails.has(session.id)) {
+            summary = sessionOrderDetails.get(session.id);
+        }
 
-      // Email per ordine regalo
-      if (session.metadata?.total <= 5) {
-        const message = `🎁 *Minibar – ${orderId}* (Regalo)\n\n${summary}`;
-        await sendMail('Ordine Regalo', message);
-        await sendTelegramNotification('Ordine Regalo', message);
-      } 
-      // Email per ordine in attesa di pagamento
-      else if (session.payment_status !== 'paid') {
-        const message = `🧺 *Minibar – ${orderId}*\n\n${summary}`;
-        await sendMail('Ordine in Attesa di Pagamento', message);
-        await sendTelegramNotification('Ordine in Attesa di Pagamento', message);
-      }
-
-      // Se il pagamento è stato effettuato
-      if (session.payment_status === 'paid') {
-        const message = `💰 *Minibar – ${orderId}* (Pagato)\n\n${summary}`;
-        await sendMail('Ordine Pagato', message);
-        await sendTelegramNotification('Ordine Pagato', message);
-      }
-
+        // If total is below 5€, send "Ordine Regalo" email
+        if (session.metadata?.total <= 5) {
+            const message = `🎁 *Minibar – ${orderId}* (Regalo)\n\n${summary}`;
+            await sendMail('Ordine Regalo', message);
+            await sendTelegramNotification('Ordine Regalo', message);
+        } 
+        // If payment status is 'paid' and total is above 5€, send "Ordine Pagato" email
+        else if (session.payment_status === 'paid') {
+            const message = `💰 *Minibar – ${orderId}* (Pagato)\n\n${summary}`;
+            await sendMail('Ordine Pagato', message);
+            await sendTelegramNotification('Ordine Pagato', message);
+        }
+        // If payment status is not 'paid' and total is above 5€, send "Ordine in Attesa di Pagamento" email
+        else {
+            const message = `🧺 *Minibar – ${orderId}*\n\n${summary}`;
+            await sendMail('Ordine in Attesa di Pagamento', message);
+            await sendTelegramNotification('Ordine in Attesa di Pagamento', message);
+        }
     } else {
-      console.log(`⛔ Webhook ignorato: source ≠ 'minibar' (trovato: '${source}')`);
+        console.log(`⛔ Webhook ignorato: source ≠ 'minibar' (trovato: '${source}')`);
     }
-  }
+}
+
+
 
   res.sendStatus(200);
 });
