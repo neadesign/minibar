@@ -84,7 +84,7 @@ app.post('/create-checkout-session', async (req, res) => {
   console.log("✅ Richiesta ricevuta:", req.body);
 
   let numericTotal = parseFloat(total);
-  
+
   // Se il totale è inferiore a 5€, applica uno sconto di 5€
   if (numericTotal < 5) {
     numericTotal = 0;  // Il totale diventa 0 se inferiore a 5€ (offerta regalo)
@@ -145,7 +145,6 @@ app.post('/create-checkout-session', async (req, res) => {
     res.status(500).json({ error: 'Errore interno creazione sessione Stripe' });
   }
 });
-
 
 // Funzione per inviare mail
 async function sendMail(subject, message) {
