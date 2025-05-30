@@ -3,17 +3,18 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title id="page-title">Grazie per aver usato il nostro servizio</title>
+  <title>Grazie per aver usato il nostro servizio</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background-color: #f9f9f9;
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f7fb;
       text-align: center;
-      padding: 50px;
+      padding: 60px;
+      margin: 0;
     }
 
     h1 {
-      font-size: 2.5em;
+      font-size: 3em;
       color: #333;
       margin-bottom: 20px;
     }
@@ -22,34 +23,57 @@
       background-color: #e8f5e9;
       color: #388e3c;
       border: 1px solid #388e3c;
-      padding: 20px;
-      margin-top: 40px;
+      padding: 30px;
+      margin-top: 30px;
       display: inline-block;
-      border-radius: 5px;
-      font-size: 1.2em;
+      border-radius: 8px;
+      font-size: 1.4em;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .confirmation-message span {
+      font-size: 2em;
+      vertical-align: middle;
+      margin-right: 15px;
     }
 
     .back-link {
-      font-size: 1.1em;
+      font-size: 1.3em;
       color: #0077cc;
-      margin-top: 20px;
+      margin-top: 30px;
       display: inline-block;
       text-decoration: none;
+      padding: 12px 30px;
+      border: 2px solid #0077cc;
+      border-radius: 30px;
+      transition: all 0.3s ease;
     }
 
     .back-link:hover {
-      text-decoration: underline;
+      background-color: #0077cc;
+      color: white;
+      transform: scale(1.05);
+      text-decoration: none;
     }
+
+    /* Icona "Torna al sito Neaspace" */
+    .back-link:before {
+      content: "←";
+      margin-right: 8px;
+      font-size: 1.4em;
+    }
+
   </style>
 </head>
 <body>
   <h1>Grazie per aver usato il nostro servizio di autocheck-out minibar!</h1>
 
   <div class="confirmation-message">
-    ✔️ Grazie per aver utilizzato il nostro servizio di autocheck-out minibar! Torna presto per un'altra esperienza.
+    <span>✔️</span> Grazie per aver utilizzato il nostro servizio di autocheck-out minibar! Torna presto per un'altra esperienza.
   </div>
 
   <br><br>
-  <a href="https://neaspace.myweb.smoobu.com/" class="back-link">← Torna al sito Neaspace</a>
+  <a href="https://neaspace.myweb.smoobu.com/" class="back-link">Torna al sito Neaspace</a>
 </body>
 </html>
