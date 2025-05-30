@@ -13,8 +13,6 @@ const TELEGRAM_TOKEN = process.env.TELEGRAM_TOKEN;
 const TELEGRAM_CHAT_ID = process.env.TELEGRAM_CHAT_ID;
 const GMAIL_PASS = process.env.GMAIL_PASS;
 
-const sessionOrderDetails = new Map();
-
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
@@ -25,8 +23,10 @@ const transporter = nodemailer.createTransport({
 
 const app = express();
 app.use(cors());
+app.use(express.json()); // per body normale
+app.use('/webhook', express.raw({ type: 'application/json' })); // per webhook Stripe
 
-// Funzione per inviare l'email
+// Funzione invia email
 async function sendMail(subject, message) {
   try {
     await transporter.sendMail({
@@ -41,7 +41,7 @@ async function sendMail(subject, message) {
   }
 }
 
-// Funzione per inviare notifiche Telegram
+// Funzione invia notifica Telegram
 async function sendTelegramNotification(subject, message) {
   try {
     await axios.post(`https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage`, {
@@ -55,73 +55,67 @@ async function sendTelegramNotification(subject, message) {
   }
 }
 
+// API create-checkout-session
 app.post('/create-checkout-session', async (req, res) => {
-  const { total, orderDetailsShort, orderDetailsLong, delivery_date, phone } = req.body;
+  const { total, orderDetailsLong } = req.body;
   console.log("✅ Richiesta ricevuta:", req.body);
 
   let numericTotal = parseFloat(total);
+  const orderId = crypto.randomUUID().slice(0, 8); // ID breve ordine
+  const preMessage = `📋 *Minibar – ${orderId}*\n\n${orderDetailsLong}`;
 
-  // Se il totale è inferiore a 5€, invia l'email "Ordine Regalo" e reindirizza
+  // Caso ordine REGALO (< 5€)
   if (numericTotal < 5) {
-    console.log("✅ Ordine inferiore a 5€, invio messaggio regalo");
-
-    const orderId = crypto.randomUUID().slice(0, 8); // Genera un ID unico per l'ordine
-    const preMessage = `🎁 *Minibar – ${orderId}* (Regalo)\n\n${orderDetailsLong}`;
-
-    // Invia la mail per l'ordine regalo
+    console.log("🎁 Ordine < 5€, invio Ordine Regalo");
     await sendMail('Ordine Regalo', preMessage);
     await sendTelegramNotification('Ordine Regalo', preMessage);
 
-    // Reindirizza l'utente alla pagina di conferma
     return res.json({
-      redirect: "https://neadesign.github.io/minibar/thank-you.html" // Reindirizzamento alla pagina di conferma
+      redirect: "https://neadesign.github.io/minibar/thank-you.html"
     });
   }
 
-  // Se il totale è maggiore di 5€, calcola il totale per Stripe
+  // Caso ordine ≥ 5€
   if (isNaN(numericTotal) || numericTotal <= 0) {
     console.error("❌ Totale non valido:", total);
     return res.status(400).json({ error: "❌ L'importo totale non è valido." });
   }
 
-  const adjustedTotal = numericTotal - 5; // Deduco 5€ dal totale
-
+  const adjustedTotal = numericTotal - 5;
   if (adjustedTotal <= 0) {
     console.error("❌ Importo per Stripe non valido:", adjustedTotal);
     return res.status(400).json({ error: "❌ L'importo per Stripe non è valido." });
   }
 
-  const orderId = crypto.randomUUID().slice(0, 8); // Genera un nuovo ID per l'ordine
-  const preMessage = `📥 *Nuovo ordine MINIBAR in attesa di pagamento – ${orderId}*\n\n${orderDetailsLong}`;
+  // Invia mail + telegram "In attesa di pagamento"
+  console.log("💳 Ordine ≥ 5€, invio Ordine in Attesa di Pagamento");
+  await sendMail('Ordine in Attesa di Pagamento', preMessage);
+  await sendTelegramNotification('Ordine in Attesa di Pagamento', preMessage);
 
   try {
-    // Invia l'email per "Ordine in Attesa di Pagamento"
-    await sendMail('Ordine in Attesa di Pagamento', preMessage);
-    await sendTelegramNotification('Ordine in Attesa di Pagamento', preMessage);
-
-    // Crea la sessione Stripe con l'importo modificato
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{
         price_data: {
           currency: 'eur',
           product_data: { name: 'Minibar Order' },
-          unit_amount: Math.round(adjustedTotal * 100) // Totale corretto in centesimi
+          unit_amount: Math.round(adjustedTotal * 100)
         },
         quantity: 1
       }],
       mode: 'payment',
       success_url: 'https://neadesign.github.io/Zielinska/success001.html',
       cancel_url: 'https://neadesign.github.io/Zielinska/cancel001.html',
-       metadata: {
-        source: 'minibar' // Inviamo solo questo metadata
+      metadata: {
+        source: 'minibar',
+        total: adjustedTotal.toFixed(2),
+        orderDetails: orderDetailsLong,
+        orderId
       }
     });
 
-    sessionOrderDetails.set(session.id, orderDetailsLong);
     console.log('✅ Sessione Stripe creata:', session.id);
 
-    // Restituisci il link alla pagina di pagamento Stripe
     res.json({ url: session.url });
   } catch (err) {
     console.error('❌ Errore creazione sessione Stripe:', err.message);
@@ -129,8 +123,8 @@ app.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// Webhook per Stripe
-app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res) => {
+// Webhook Stripe
+app.post('/webhook', async (req, res) => {
   const sig = req.headers['stripe-signature'];
   let event;
   try {
@@ -144,26 +138,30 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
   if (event.type === 'checkout.session.completed') {
     const session = event.data.object;
     const source = (session.metadata?.source || '').toLowerCase();
-    console.log('🔍 Webhook ricevuto con source:', source);
+    const orderId = session.metadata?.orderId || 'Ordine';
+    let summary = session.metadata?.orderDetails || '⚠️ Nessun dettaglio ordine';
 
     if (source === 'minibar') {
-      const orderId = session.metadata?.orderId || 'Ordine';
-      let summary = session.metadata?.orderDetails || '⚠️ Nessun dettaglio ordine';
-      const total = session.metadata?.total || 0;
+      console.log(`💰 Ordine PAGATO per Minibar – ${orderId}`);
+      const message = `💰 *Minibar – ${orderId}* (Pagato)\n\n${summary}`;
+      await sendMail('Ordine Pagato', message);
+      await sendTelegramNotification('Ordine Pagato', message);
+    } else {
+      console.log(`⛔ Webhook ignorato: source ≠ 'minibar' (trovato: '${source}')`);
+    }
+  }
 
-      if (session.metadata?.total <= 5) {
-        const message = `🎁 *Minibar – ${orderId}* (Regalo)\n\n${summary}`;
-        await sendMail('Ordine Regalo', message);
-        await sendTelegramNotification('Ordine Regalo', message);
-      } else if (session.payment_status === 'paid') {
-        const message = `💰 *Minibar – ${orderId}* (Pagato)\n\n${summary}`;
-        await sendMail('Ordine Pagato', message);
-        await sendTelegramNotification('Ordine Pagato', message);
-      } else {
-        const message = `🧺 *Minibar – ${orderId}*\n\n${summary}`;
-        await sendMail('Ordine in Attesa di Pagamento', message);
-        await sendTelegramNotification('Ordine in Attesa di Pagamento', message);
-      }
+  if (event.type === 'checkout.session.expired') {
+    const session = event.data.object;
+    const source = (session.metadata?.source || '').toLowerCase();
+    const orderId = session.metadata?.orderId || 'Ordine';
+    let summary = session.metadata?.orderDetails || '⚠️ Nessun dettaglio ordine';
+
+    if (source === 'minibar') {
+      console.log(`⚠️ Ordine ABBANDONATO per Minibar – ${orderId}`);
+      const message = `⚠️ *Minibar – ${orderId}* (Ordine Abbandonato)\n\n${summary}`;
+      await sendMail('Ordine Abbandonato', message);
+      await sendTelegramNotification('Ordine Abbandonato', message);
     } else {
       console.log(`⛔ Webhook ignorato: source ≠ 'minibar' (trovato: '${source}')`);
     }
@@ -172,6 +170,7 @@ app.post('/webhook', express.raw({ type: 'application/json' }), async (req, res)
   res.sendStatus(200);
 });
 
+// Avvio server
 const PORT = process.env.PORT || 10001;
 app.listen(PORT, () => {
   console.log(`🚀 Minibar Server attivo su http://localhost:${PORT}`);
