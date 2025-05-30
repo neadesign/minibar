@@ -128,20 +128,26 @@
       const lang = document.getElementById('lang').value;
       const orderDetails = cart.map(item => `- ${item.name}: ${item.qty} × €${item.price.toFixed(2)} = €${(item.qty * item.price).toFixed(2)}`).join('\n');
       let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
-
+ // Se il totale è inferiore a 5€, reindirizza alla pagina "thank-you.html"
+    if (total < 5) {
+  button.disabled = true; // così eviti che l'utente faccia doppio click!
+  showToast('Gli ordini inferiori a 50 centesimi sono offerti dalla casa. Grazie!', 2000);
+  setTimeout(() => {
+    window.location.href = "https://neadesign.github.io/minibar/thank-you.html";
+  }, 2000);
+  return;
+}
       if (total <= 0) {
         showToast('Per favore aggiungi almeno un prodotto al carrello.', 4000);
         button.disabled = false;
         return;
       }
 
-      // Se il totale è inferiore a 5€, reindirizza alla pagina "thank-you.html"
-      if (total < 5) {
-        showToast('Gli ordini inferiori a 50 centesimi sono offerti dalla casa. Grazie!', 4000);
-        button.disabled = false;
-        window.location.href = "https://neadesign.github.io/minibar/thank-you.html";  // Reindirizza alla pagina regalo
-        return;
-      }
+     
+
+  return; // MOLTO IMPORTANTE: il return blocca il resto della funzione
+}
+
 
       // Se il totale è maggiore di 5€, invia la richiesta al backend per la sessione Stripe
       const payload = {
