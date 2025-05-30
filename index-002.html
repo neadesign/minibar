@@ -142,14 +142,15 @@
 
     // Prepara il payload con il metadata source
     const payload = {
-      type: 'minibar',
-      source: 'minibar', // Questo è il metadata che inviamo
-      cart,
-      orderDetails,
-      total,
-      orderDetailsShort: orderDetails, // Riassunto dell'ordine (opzionale)
-      orderDetailsLong: orderDetails,  // Dettagli completi dell'ordine
-    };
+  type: 'minibar',
+  source: 'minibar',
+  cart,
+  orderDetails,
+  total,
+  orderDetailsShort: orderDetails, 
+  orderDetailsLong: orderDetails, 
+};
+
 
     try {
       const response = await fetch('https://minibar.onrender.com/create-checkout-session', {
