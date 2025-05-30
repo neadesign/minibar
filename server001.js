@@ -85,10 +85,18 @@ app.post('/create-checkout-session', async (req, res) => {
 
   let numericTotal = parseFloat(total);
 
-  // Se il totale è inferiore a 5€, applica uno sconto di 5€
-  let finalAmount = numericTotal < 5 ? 0 : numericTotal; // Totale finale da inviare a Stripe
+  // Se il totale è inferiore a 5€, non inviare Stripe
+  if (numericTotal < 5) {
+    // Invia un messaggio di regalo
+    console.log("✅ Ordine inferiore a 5€, invio messaggio regalo");
 
-  if (isNaN(finalAmount) || finalAmount < 0) {
+    // Redirige alla pagina di conferma senza Stripe
+    return res.json({
+      redirect: "https://neadesign.github.io/Zielinska/thank-you.html"  // Pagina di conferma "Regalo"
+    });
+  }
+
+  if (isNaN(numericTotal) || numericTotal <= 0) {
     console.error("❌ Totale non valido:", total);
     return res.status(400).json({ error: "❌ L'importo totale non è valido." });
   }
@@ -122,7 +130,7 @@ app.post('/create-checkout-session', async (req, res) => {
         price_data: {
           currency: 'eur',
           product_data: { name: 'Minibar Order' },
-          unit_amount: Math.round(finalAmount * 100) // Applica il totale corretto in centesimi
+          unit_amount: Math.round(numericTotal * 100) // Applica il totale corretto in centesimi
         },
         quantity: 1
       }],
