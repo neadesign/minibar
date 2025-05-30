@@ -121,7 +121,7 @@
       updateCart();
     }
 
-   async function sendOrder() {
+async function sendOrder() {
   const button = document.getElementById('checkout-button');
   button.disabled = true;
 
@@ -135,22 +135,19 @@
     return;
   }
 
+  // Prepara il payload con il metadata source
+  const payload = {
+    type: 'minibar',
+    source: 'minibar',
+    cart,
+    orderDetails,
+    total
+  };
+
   // Se il totale è inferiore a 5€, invia l'ordine al backend e reindirizza
   if (total < 5) {
     showToast(getLabel('smallgift', lang), 4000);
     button.disabled = false;
-
-    // Prepara il payload con il metadata source
-    const payload = {
-  type: 'minibar',
-  source: 'minibar',
-  cart,
-  orderDetails,
-  total,
-  orderDetailsShort: orderDetails, 
-  orderDetailsLong: orderDetails, 
-};
-
 
     try {
       const response = await fetch('https://minibar.onrender.com/create-checkout-session', {
@@ -161,7 +158,6 @@
       const result = await response.json();
 
       if (result && result.redirect) {
-        // Se il backend restituisce un redirect (per esempio "thank-you.html")
         window.location.href = result.redirect;  // Reindirizza alla pagina regalo
       }
     } catch (error) {
@@ -172,18 +168,6 @@
   }
 
   // Se il totale è maggiore di 5€, continua con il flusso Stripe
-  const payload = {
-    type: 'minibar',
-    source: 'minibar',
-    cart,
-    orderDetails,
-    total,
-    orderDetailsShort: orderDetails,
-    orderDetailsLong: orderDetails,
-    delivery_date: '2025-12-31',
-    phone: '-'
-  };
-
   try {
     const response = await fetch('https://minibar.onrender.com/create-checkout-session', {
       method: 'POST',
@@ -193,12 +177,9 @@
     const result = await response.json();
 
     if (result && result.redirect) {
-      // Se il backend restituisce un redirect (per esempio, Stripe)
-      window.location.href = result.redirect;
+      window.location.href = result.redirect;  // Reindirizza al link di pagamento
     } else if (result && result.url) {
       showToast(getLabel('popup', lang), 7000);
-
-      // Riabilita il pulsante PRIMA del redirect
       button.disabled = false;
       setTimeout(() => {
         window.location.href = result.url;
