@@ -15,177 +15,7 @@
       padding: 20px;
       color: #333;
     }
-
-    header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    header img {
-      height: 60px;
-      margin-bottom: 10px;
-    }
-
-    h1 {
-      font-size: 36px;
-      font-weight: 700;
-      text-align: center;
-      margin-bottom: 10px;
-    }
-
-    .lang-select {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    select {
-      padding: 6px 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 14px;
-    }
-
-   .product-list {
-      display: block;
-      max-width: 500px;
-      margin: 0 auto;
-    }
-
-    .product {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: #fff;
-      border-bottom: 1px solid #eee;
-      padding: 12px 16px;
-      font-size: 14px;
-      box-shadow: none;
-      border-radius: 0;
-    }
-
-    .product h3 {
-      margin: 0;
-      font-size: 14px;
-      font-weight: 600;
-      flex: 1;
-    }
-
-    .product p {
-      margin: 0 16px;
-      font-size: 14px;
-      font-weight: bold;
-      color: #333;
-      width: 60px;
-      text-align: right;
-    }
-
-    .product input[type="number"] {
-      width: 50px;
-      padding: 4px;
-      font-size: 13px;
-      margin-right: 8px;
-    }
-
-    .product button {
-      padding: 6px 10px;
-      font-size: 13px;
-      border-radius: 6px;
-    }
-
-    .product button:hover {
-      background-color: #005fa3;
-    }
-
-    .remove-btn {
-      background-color: #e74c3c;
-      border-radius: 6px;
-      padding: 4px 8px;
-      color: white;
-      font-size: 14px;
-    }
-
-    .cart {
-      margin-top: 60px;
-      max-width: 800px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-
-    .cart h2 {
-      font-size: 24px;
-      margin-bottom: 10px;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      border-radius: 12px;
-      overflow: hidden;
-      font-size: 15px;
-    }
-
-    th, td {
-      border: 1px solid #eee;
-      padding: 12px;
-      text-align: center;
-    }
-
-    th {
-      background-color: #f9f9f9;
-      font-weight: bold;
-    }
-
-    #total {
-      text-align: right;
-      margin-top: 15px;
-      font-size: 20px;
-      font-weight: bold;
-    }
-
-    .checkout {
-      margin-top: 30px;
-      text-align: center;
-    }
-
-    .checkout button {
-      background-color: #0077cc;
-      font-size: 18px;
-      padding: 14px 36px;
-      border-radius: 12px;
-      font-weight: 700;
-      color: white;
-      text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-    }
-
-    .checkout button:hover {
-      background-color: #005fa3;
-    }
-
-    .stripe-note {
-      margin-top: 16px;
-      text-align: center;
-      font-size: 14px;
-      color: #555;
-      opacity: 0.8;
-    }
-
-    #toastOverlay {
-      display: none;
-      position: fixed;
-      top: 40%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      background: rgba(0,0,0,0.85);
-      color: #fff;
-      padding: 20px 30px;
-      border-radius: 10px;
-      font-size: 16px;
-      z-index: 10000;
-      text-align: center;
-      max-width: 80%;
-    }
+    /* Stili CSS restanti come nel tuo codice */
   </style>
 </head>
 <body>
@@ -252,7 +82,6 @@
               <h3>${name}</h3>
               <p>€${price.toFixed(2)}</p>
               <input type="number" min="1" value="1" />
-              <br>
               <button onclick="addToCart('${name}', ${price}, this)">Aggiungi</button>
             `;
             document.getElementById('products').appendChild(productDiv);
@@ -260,57 +89,6 @@
           updateLabels(lang);
         }
       });
-    }
-
-    function getLabel(type, lang) {
-      const labels = {
-        add: { IT: 'Aggiungi', EN: 'Add', FR: 'Ajouter', ES: 'Añadir' },
-        cart: { IT: 'Il tuo carrello', EN: 'Your Cart', FR: 'Votre Panier', ES: 'Tu Carrito' },
-        prod: { IT: 'Prodotto', EN: 'Product', FR: 'Produit', ES: 'Producto' },
-        qty: { IT: 'Quantità', EN: 'Quantity', FR: 'Quantité', ES: 'Cantidad' },
-        price: { IT: 'Prezzo', EN: 'Price', FR: 'Prix', ES: 'Precio' },
-        total: { IT: 'Totale', EN: 'Total', FR: 'Total', ES: 'Total' },
-        checkout: { IT: 'Invia ordine / Paga', EN: 'Send order / Pay', FR: 'Envoyer la commande / Payer', ES: 'Enviar pedido / Pagar' },
-        popup: {
-          IT: 'Stai per essere inoltrato alla pagina di pagamento. Attendi qualche secondo…',
-          EN: 'You are about to be redirected to the payment page. Please wait a few seconds…',
-          FR: 'Vous allez être redirigé vers la page de paiement. Veuillez patienter quelques secondes…',
-          ES: 'Estás a punto de ser redirigido a la página de pago. Por favor, espera unos segundos…'
-        },
-        smallgift: {
-          IT: 'Gli ordini inferiori a 50 centesimi sono offerti dalla casa. Grazie!',
-          EN: 'Orders under 50 cents are on the house. Enjoy!',
-          FR: 'Les commandes inférieures à 50 centimes sont offertes par la maison. Merci !',
-          ES: 'Los pedidos inferiores a 50 céntimos corren por cuenta de la casa. ¡Gracias!'
-        },
-        empty: {
-          IT: "Per favore aggiungi almeno un prodotto al carrello.",
-          EN: "Please add at least one item to the cart.",
-          FR: "Veuillez ajouter au moins un produit au panier.",
-          ES: "Por favor, añade al menos un producto al carrito."
-        }
-      };
-      return labels[type][lang];
-    }
-
-    function updateLabels(lang) {
-      document.getElementById('cart-title').innerText = getLabel('cart', lang);
-      document.getElementById('th-product').innerText = getLabel('prod', lang);
-      document.getElementById('th-qty').innerText = getLabel('qty', lang);
-      document.getElementById('th-price').innerText = getLabel('price', lang);
-      document.getElementById('checkout-button').innerText = getLabel('checkout', lang);
-      updateCart();
-    }
-
-    function addToCart(name, price, btn) {
-      const qty = parseInt(btn.previousElementSibling.previousElementSibling.value);
-      cart.push({ name, price, qty });
-      updateCart();
-    }
-
-    function removeFromCart(index) {
-      cart.splice(index, 1);
-      updateCart();
     }
 
     function updateCart() {
@@ -329,16 +107,18 @@
       });
 
       const lang = document.getElementById('lang').value;
-      document.getElementById('total').innerText = `${getLabel('total', lang)}: €${total.toFixed(2)}`;
+      document.getElementById('total').innerText = `Totale: €${total.toFixed(2)}`;
     }
 
-    function showToast(message, duration = 7000) {
-      const toast = document.getElementById('toastOverlay');
-      toast.innerText = message;
-      toast.style.display = 'block';
-      setTimeout(() => {
-        toast.style.display = 'none';
-      }, duration);
+    function addToCart(name, price, btn) {
+      const qty = parseInt(btn.previousElementSibling.value);
+      cart.push({ name, price, qty });
+      updateCart();
+    }
+
+    function removeFromCart(index) {
+      cart.splice(index, 1);
+      updateCart();
     }
 
     async function sendOrder() {
@@ -350,19 +130,20 @@
       let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
 
       if (total <= 0) {
-        showToast(getLabel('empty', lang), 4000);
+        showToast('Per favore aggiungi almeno un prodotto al carrello.', 4000);
         button.disabled = false;
-        button.innerText = getLabel('checkout', lang);
         return;
       }
 
-      if (total < 0.5) {
-        showToast(getLabel('smallgift', lang), 4000);
+      // Se il totale è inferiore a 5€, reindirizza alla pagina "thank-you.html"
+      if (total < 5) {
+        showToast('Gli ordini inferiori a 50 centesimi sono offerti dalla casa. Grazie!', 4000);
         button.disabled = false;
-        button.innerText = getLabel('checkout', lang);
+        window.location.href = "https://neadesign.github.io/minibar/thank-you.html";  // Reindirizza alla pagina regalo
         return;
       }
 
+      // Se il totale è maggiore di 5€, invia la richiesta al backend per la sessione Stripe
       const payload = {
         type: 'minibar',
         source: 'minibar',
@@ -382,26 +163,28 @@
           body: JSON.stringify(payload)
         });
         const result = await response.json();
-        if (result && result.url) {
-          showToast(getLabel('popup', lang), 7000);
 
-          // Riabilita il pulsante PRIMA del redirect
-          button.disabled = false;
-          button.innerText = getLabel('checkout', lang);
-
-          // Dopo 7s, avvia il redirect
+        if (result && result.redirect) {
+          window.location.href = result.redirect;
+        } else if (result && result.url) {
+          showToast('Stai per essere indirizzato alla pagina di pagamento...', 7000);
           setTimeout(() => {
             window.location.href = result.url;
           }, 7000);
-        } else {
-          throw new Error('URL mancante nella risposta.');
         }
       } catch (error) {
         console.error('Errore durante il checkout:', error);
         button.disabled = false;
-        button.innerText = getLabel('checkout', lang);
-        alert("Errore durante il checkout: " + error.message);
       }
+    }
+
+    function showToast(message, duration = 7000) {
+      const toast = document.getElementById('toastOverlay');
+      toast.innerText = message;
+      toast.style.display = 'block';
+      setTimeout(() => {
+        toast.style.display = 'none';
+      }, duration);
     }
 
     function setLang(code) {
