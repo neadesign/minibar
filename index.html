@@ -368,40 +368,31 @@
       }, duration);
     }
 
-   async function sendOrder() {
+  async function sendOrder() {
   const button = document.getElementById('checkout-button');
   button.disabled = true;
 
   const lang = document.getElementById('lang').value;
   const orderDetails = cart.map(item => `- ${item.name}: ${item.qty} × €${item.price.toFixed(2)} = €${(item.qty * item.price).toFixed(2)}`).join('\n');
-  let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
+  
+  let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0);
 
-  if (total <= 0) {
-    showToast(getLabel('empty', lang), 4000);
-    button.disabled = false;
-    button.innerText = getLabel('checkout', lang);
-    return;
-  }
-
-  // Se il totale è inferiore a 5€, non fare chiamata a Stripe, solo il pop-up
+  // Se il totale è inferiore a 5€, mostra il pop-up per "Regalo"
   if (total < 5) {
-    showToast(getLabel('smallgift', lang), 4000);
-    setTimeout(() => {
-      window.location.href = 'https://neadesign.github.io/minibar/thank-you.html';  // Reindirizza alla pagina di ringraziamento
-    }, 4000);
-
-    button.disabled = false;
-    button.innerText = getLabel('checkout', lang);
-    return;
+    total = 0;  // Imposta il totale a 0 per ordine sotto i 5€
+  } else {
+    total -= 5; // Se superiore a 5€, applica il "Regalo"
   }
 
-  // Se il totale è maggiore di 5€, invia la richiesta a Stripe
+  // Aggiorna il carrello visivamente
+  updateCart();
+
   const payload = {
     type: 'minibar',
     source: 'minibar',
     cart,
     orderDetails,
-    total,
+    total: total.toFixed(2),  // Totale giusto, già applicato lo sconto
     orderDetailsShort: orderDetails,
     orderDetailsLong: orderDetails,
     delivery_date: '2025-12-31',
@@ -415,14 +406,14 @@
       body: JSON.stringify(payload)
     });
     const result = await response.json();
+
     if (result && result.url) {
       showToast(getLabel('popup', lang), 7000);
-
       button.disabled = false;
       button.innerText = getLabel('checkout', lang);
 
       setTimeout(() => {
-        window.location.href = result.url;  // Redirige verso Stripe per il pagamento
+        window.location.href = result.url;
       }, 7000);
     } else {
       throw new Error('URL mancante nella risposta.');
