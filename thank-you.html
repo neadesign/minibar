@@ -15,16 +15,18 @@
     h1 {
       font-size: 2.5em;
       color: #333;
+      margin-bottom: 20px;
     }
 
-    p {
+    .confirmation-message {
+      background-color: #e8f5e9;
+      color: #388e3c;
+      border: 1px solid #388e3c;
+      padding: 20px;
+      margin-top: 40px;
+      display: inline-block;
+      border-radius: 5px;
       font-size: 1.2em;
-      color: #555;
-    }
-
-    .thank-you-image {
-      width: 200px;
-      margin-top: 20px;
     }
 
     .button {
@@ -42,64 +44,30 @@
     .button:hover {
       background-color: #005fa3;
     }
+
+    .back-link {
+      font-size: 1.1em;
+      color: #0077cc;
+      margin-top: 20px;
+      display: inline-block;
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
   </style>
 </head>
 <body>
-  <h1 id="thank-you-message">Grazie di aver usato il nostro servizio di autocheck-out minibar!</h1>
-  <p id="sub-message">Ci auguriamo che il tuo soggiorno sia stato piacevole. Torna presto!</p>
-  <img src="https://www.example.com/thank-you-image.png" alt="Grazie" class="thank-you-image">
-  <br>
-  <a href="/" class="button" id="return-button">Torna alla homepage</a>
+  <h1>Grazie per aver usato il nostro servizio di autocheck-out minibar!</h1>
 
-  <script>
-    // Funzione per caricare i testi in base alla lingua
-    function loadLanguage() {
-      const lang = localStorage.getItem('lang') || 'IT';  // Recupera la lingua selezionata (default IT)
-      const translations = {
-        IT: {
-          title: 'Grazie per aver usato il nostro servizio',
-          message: 'Grazie di aver usato il nostro servizio di autocheck-out minibar!',
-          subMessage: 'Ci auguriamo che il tuo soggiorno sia stato piacevole. Torna presto!',
-          button: 'Torna alla homepage',
-        },
-        EN: {
-          title: 'Thank you for using our service',
-          message: 'Thank you for using our minibar auto-checkout service!',
-          subMessage: 'We hope your stay was pleasant. Come back soon!',
-          button: 'Return to homepage',
-        },
-        FR: {
-          title: 'Merci d\'avoir utilisé notre service',
-          message: 'Merci d\'avoir utilisé notre service d\'autocheck-out minibar!',
-          subMessage: 'Nous espérons que votre séjour a été agréable. Revenez bientôt!',
-          button: 'Retour à la page d\'accueil',
-        },
-        ES: {
-          title: 'Gracias por usar nuestro servicio',
-          message: '¡Gracias por usar nuestro servicio de autocheck-out minibar!',
-          subMessage: '¡Esperamos que tu estancia haya sido agradable. Vuelve pronto!',
-          button: 'Volver a la página principal',
-        }
-      };
+  <div class="confirmation-message">
+    <span>✔️</span> Il tuo ordine è stato ricevuto con successo. Lo prepareremo con cura e lo consegneremo all'ora stabilita.
+  </div>
 
-      // Carica i testi nella lingua selezionata
-      const selectedLang = translations[lang] || translations['IT'];
+  <a href="/" class="button">Torna alla homepage</a>
 
-      // Imposta il titolo
-      document.getElementById('page-title').innerText = selectedLang.title;
-
-      // Imposta il messaggio di benvenuto
-      document.getElementById('thank-you-message').innerText = selectedLang.message;
-
-      // Imposta il sottotitolo
-      document.getElementById('sub-message').innerText = selectedLang.subMessage;
-
-      // Imposta il bottone di ritorno
-      document.getElementById('return-button').innerText = selectedLang.button;
-    }
-
-    // Carica i testi quando la pagina viene caricata
-    window.onload = loadLanguage;
-  </script>
+  <br><br>
+  <a href="https://neaspace.myweb.smoobu.com/" class="back-link">← Torna al sito Neaspace</a>
 </body>
 </html>
