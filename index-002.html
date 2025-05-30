@@ -140,17 +140,15 @@
     showToast(getLabel('smallgift', lang), 4000);
     button.disabled = false;
 
-    // Invia l'ordine al backend per creare l'email "Ordine Regalo"
+    // Prepara il payload con il metadata source
     const payload = {
       type: 'minibar',
-      source: 'minibar',
+      source: 'minibar', // Questo è il metadata che inviamo
       cart,
       orderDetails,
       total,
-      orderDetailsShort: orderDetails,
-      orderDetailsLong: orderDetails,
-      delivery_date: '2025-12-31',
-      phone: '-'
+      orderDetailsShort: orderDetails, // Riassunto dell'ordine (opzionale)
+      orderDetailsLong: orderDetails,  // Dettagli completi dell'ordine
     };
 
     try {
