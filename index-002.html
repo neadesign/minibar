@@ -253,8 +253,7 @@
               <h3>${name}</h3>
               <p>€${price.toFixed(2)}</p>
               <input type="number" min="1" value="1" />
-              <br>
-              <button onclick="addToCart('${name}', ${price}, this)">${getLabel('add', lang)}</button>
+              <button onclick="addToCart('${name}', ${price}, this)">Aggiungi</button>
             `;
             document.getElementById('products').appendChild(productDiv);
           });
