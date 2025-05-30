@@ -376,6 +376,7 @@
   const orderDetails = cart.map(item => `- ${item.name}: ${item.qty} × €${item.price.toFixed(2)} = €${(item.qty * item.price).toFixed(2)}`).join('\n');
   let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
 
+  // Se il totale è inferiore a 5€, mostra il pop-up
   if (total <= 0) {
     showToast(getLabel('empty', lang), 4000);
     button.disabled = false;
@@ -383,21 +384,14 @@
     return;
   }
 
-  if (total < 5) {
-    // Se l'ordine è inferiore a 5€, mostra il pop-up
-    showToast(getLabel('smallgift', lang), 4000);
-
-    // Dopo 4 secondi, reindirizza alla pagina di ringraziamento
-    setTimeout(() => {
-      window.location.href = 'https://neadesign.github.io/minibar/thank-you.html';  // Reindirizza alla pagina di ringraziamento
-    }, 4000);
-
-    button.disabled = false;
-    button.innerText = getLabel('checkout', lang);
-    return;
+  // Applica uno sconto di 5 euro per ordini superiori a 5€
+  if (total >= 5) {
+    const discount = 5.00;  // Sconto
+    total = (total - discount).toFixed(2);  // Sottrai lo sconto dal totale
+    cart.push({ name: "Regalo", price: -discount, qty: 1 });  // Aggiungi la linea "Regalo" nel carrello
   }
 
-  // Se l'ordine è maggiore di 5€, continua con il normale processo di pagamento
+  // Invia i dati per Stripe
   const payload = {
     type: 'minibar',
     source: 'minibar',
@@ -436,6 +430,7 @@
     alert("Errore durante il checkout: " + error.message);
   }
 }
+
 
     function sendEmail(subject, orderDetails, total) {
       const emailPayload = {
