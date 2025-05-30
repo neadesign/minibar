@@ -15,35 +15,42 @@
       padding: 20px;
       color: #333;
     }
+
     header {
       text-align: center;
       margin-bottom: 30px;
     }
+
     header img {
       height: 60px;
       margin-bottom: 10px;
     }
+
     h1 {
       font-size: 36px;
       font-weight: 700;
       text-align: center;
       margin-bottom: 10px;
     }
+
     .lang-select {
       text-align: center;
       margin-bottom: 30px;
     }
+
     select {
       padding: 6px 12px;
       border-radius: 8px;
       border: 1px solid #ccc;
       font-size: 14px;
     }
-    .product-list {
+
+   .product-list {
       display: block;
       max-width: 500px;
       margin: 0 auto;
     }
+
     .product {
       display: flex;
       justify-content: space-between;
@@ -55,12 +62,14 @@
       box-shadow: none;
       border-radius: 0;
     }
+
     .product h3 {
       margin: 0;
       font-size: 14px;
       font-weight: 600;
       flex: 1;
     }
+
     .product p {
       margin: 0 16px;
       font-size: 14px;
@@ -69,20 +78,24 @@
       width: 60px;
       text-align: right;
     }
+
     .product input[type="number"] {
       width: 50px;
       padding: 4px;
       font-size: 13px;
       margin-right: 8px;
     }
+
     .product button {
       padding: 6px 10px;
       font-size: 13px;
       border-radius: 6px;
     }
+
     .product button:hover {
       background-color: #005fa3;
     }
+
     .remove-btn {
       background-color: #e74c3c;
       border-radius: 6px;
@@ -90,16 +103,19 @@
       color: white;
       font-size: 14px;
     }
+
     .cart {
       margin-top: 60px;
       max-width: 800px;
       margin-left: auto;
       margin-right: auto;
     }
+
     .cart h2 {
       font-size: 24px;
       margin-bottom: 10px;
     }
+
     table {
       width: 100%;
       border-collapse: collapse;
@@ -109,25 +125,30 @@
       overflow: hidden;
       font-size: 15px;
     }
+
     th, td {
       border: 1px solid #eee;
       padding: 12px;
       text-align: center;
     }
+
     th {
       background-color: #f9f9f9;
       font-weight: bold;
     }
+
     #total {
       text-align: right;
       margin-top: 15px;
       font-size: 20px;
       font-weight: bold;
     }
+
     .checkout {
       margin-top: 30px;
       text-align: center;
     }
+
     .checkout button {
       background-color: #0077cc;
       font-size: 18px;
@@ -137,9 +158,11 @@
       color: white;
       text-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
+
     .checkout button:hover {
       background-color: #005fa3;
     }
+
     .stripe-note {
       margin-top: 16px;
       text-align: center;
@@ -147,6 +170,7 @@
       color: #555;
       opacity: 0.8;
     }
+
     #toastOverlay {
       display: none;
       position: fixed;
@@ -194,7 +218,6 @@
   <div class="checkout">
     <button id="checkout-button" onclick="sendOrder()">Invia ordine / Paga</button>
   </div>
-
   <div class="stripe-note">
     <img src="https://stripe.com/img/v3/home/twitter.png" alt="Stripe logo" style="height: 20px; vertical-align: middle; margin-right: 8px;">
     <span>Payment secured by Stripe</span>
@@ -248,9 +271,24 @@
         price: { IT: 'Prezzo', EN: 'Price', FR: 'Prix', ES: 'Precio' },
         total: { IT: 'Totale', EN: 'Total', FR: 'Total', ES: 'Total' },
         checkout: { IT: 'Invia ordine / Paga', EN: 'Send order / Pay', FR: 'Envoyer la commande / Payer', ES: 'Enviar pedido / Pagar' },
-        popup: { IT: 'Stai per essere inoltrato alla pagina di pagamento. Attendi qualche secondo…', EN: 'You are about to be redirected to the payment page. Please wait a few seconds…', FR: 'Vous allez être redirigé vers la page de paiement. Veuillez patienter quelques secondes…', ES: 'Estás a punto de ser redirigido a la página de pago. Por favor, espera unos segundos…' },
-        smallgift: { IT: 'Gli ordini inferiori a 50 centesimi sono offerti dalla casa. Grazie!', EN: 'Orders under 50 cents are on the house. Enjoy!', FR: 'Les commandes inférieures à 50 centimes sont offertes par la maison. Merci !', ES: 'Los pedidos inferiores a 50 céntimos corren por cuenta de la casa. ¡Gracias!' },
-        empty: { IT: "Per favore aggiungi almeno un prodotto al carrello.", EN: "Please add at least one item to the cart.", FR: "Veuillez ajouter au moins un produit au panier.", ES: "Por favor, añade al menos un producto al carrito." }
+        popup: {
+          IT: 'Stai per essere inoltrato alla pagina di pagamento. Attendi qualche secondo…',
+          EN: 'You are about to be redirected to the payment page. Please wait a few seconds…',
+          FR: 'Vous allez être redirigé vers la page de paiement. Veuillez patienter quelques secondes…',
+          ES: 'Estás a punto de ser redirigido a la página de pago. Por favor, espera unos segundos…'
+        },
+        smallgift: {
+          IT: 'Gli ordini inferiori a 50 centesimi sono offerti dalla casa. Grazie!',
+          EN: 'Orders under 50 cents are on the house. Enjoy!',
+          FR: 'Les commandes inférieures à 50 centimes sont offertes par la maison. Merci !',
+          ES: 'Los pedidos inferiores a 50 céntimos corren por cuenta de la casa. ¡Gracias!'
+        },
+        empty: {
+          IT: "Per favore aggiungi almeno un prodotto al carrello.",
+          EN: "Please add at least one item to the cart.",
+          FR: "Veuillez ajouter au moins un produit au panier.",
+          ES: "Por favor, añade al menos un producto al carrito."
+        }
       };
       return labels[type][lang];
     }
@@ -307,7 +345,7 @@
       const button = document.getElementById('checkout-button');
       button.disabled = true;
 
-      const lang = document.getElementById('lang').value; 
+      const lang = document.getElementById('lang').value;
       const orderDetails = cart.map(item => `- ${item.name}: ${item.qty} × €${item.price.toFixed(2)} = €${(item.qty * item.price).toFixed(2)}`).join('\n');
       let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
 
@@ -320,14 +358,10 @@
 
       if (total < 0.5) {
         showToast(getLabel('smallgift', lang), 4000);
-        sendEmail('Ordine minibar - gratuito', orderDetails, total); // Oggetto "Ordine minibar - gratuito"
         button.disabled = false;
         button.innerText = getLabel('checkout', lang);
         return;
       }
-
-      const discount = 5.00;
-      total = (total - discount).toFixed(2);
 
       const payload = {
         type: 'minibar',
@@ -338,8 +372,7 @@
         orderDetailsShort: orderDetails,
         orderDetailsLong: orderDetails,
         delivery_date: '2025-12-31',
-        phone: '-',
-        discount: discount
+        phone: '-'
       };
 
       try {
@@ -351,9 +384,12 @@
         const result = await response.json();
         if (result && result.url) {
           showToast(getLabel('popup', lang), 7000);
+
+          // Riabilita il pulsante PRIMA del redirect
           button.disabled = false;
           button.innerText = getLabel('checkout', lang);
 
+          // Dopo 7s, avvia il redirect
           setTimeout(() => {
             window.location.href = result.url;
           }, 7000);
@@ -366,29 +402,6 @@
         button.innerText = getLabel('checkout', lang);
         alert("Errore durante il checkout: " + error.message);
       }
-
-      sendEmail('Ordine minibar - in attesa di pagamento', orderDetails, total); // Oggetto "Ordine minibar - in attesa di pagamento"
-    }
-
-    function sendEmail(subject, orderDetails, total) {
-      const emailPayload = {
-        subject: subject,
-        body: `
-          Dettagli ordine:
-          ${orderDetails}
-
-          Totale: €${total.toFixed(2)}
-        `
-      };
-
-      fetch('https://minibar.onrender.com/send-email', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(emailPayload)
-      })
-      .then(response => response.json())
-      .then(data => console.log('Email inviata:', data))
-      .catch(error => console.error('Errore nell’invio della mail:', error));
     }
 
     function setLang(code) {
