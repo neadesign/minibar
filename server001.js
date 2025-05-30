@@ -86,11 +86,9 @@ app.post('/create-checkout-session', async (req, res) => {
   let numericTotal = parseFloat(total);
 
   // Se il totale è inferiore a 5€, applica uno sconto di 5€
-  if (numericTotal < 5) {
-    numericTotal = 0;  // Il totale diventa 0 se inferiore a 5€ (offerta regalo)
-  }
+  let finalAmount = numericTotal < 5 ? 0 : numericTotal; // Totale finale da inviare a Stripe
 
-  if (isNaN(numericTotal) || numericTotal < 0) {
+  if (isNaN(finalAmount) || finalAmount < 0) {
     console.error("❌ Totale non valido:", total);
     return res.status(400).json({ error: "❌ L'importo totale non è valido." });
   }
@@ -124,7 +122,7 @@ app.post('/create-checkout-session', async (req, res) => {
         price_data: {
           currency: 'eur',
           product_data: { name: 'Minibar Order' },
-          unit_amount: Math.round(numericTotal * 100) // Applica il totale corretto in centesimi
+          unit_amount: Math.round(finalAmount * 100) // Applica il totale corretto in centesimi
         },
         quantity: 1
       }],
