@@ -314,34 +314,40 @@
     }
 
     function updateCart() {
-      const tbody = document.querySelector('#cart-table tbody');
-      tbody.innerHTML = '';
-      let total = 0;
-      cart.forEach((item, index) => {
-        total += item.price * item.qty;
-        const row = `<tr>
-          <td>${item.name}</td>
-          <td>${item.qty}</td>
-          <td>€${(item.price * item.qty).toFixed(2)}</td>
-          <td><button class='remove-btn' onclick='removeFromCart(${index})'>✖</button></td>
-        </tr>`;
-        tbody.innerHTML += row;
-      });
+  const tbody = document.querySelector('#cart-table tbody');
+  tbody.innerHTML = '';
+  let total = 0;
+  
+  // Calcola il totale
+  cart.forEach((item, index) => {
+    total += item.price * item.qty;
+    const row = `<tr>
+      <td>${item.name}</td>
+      <td>${item.qty}</td>
+      <td>€${(item.price * item.qty).toFixed(2)}</td>
+      <td><button class='remove-btn' onclick='removeFromCart(${index})'>✖</button></td>
+    </tr>`;
+    tbody.innerHTML += row;
+  });
 
-      // Aggiungi la riga per il regalo se l'ordine è inferiore a 5€
-      if (total < 5) {
-        const giftRow = `<tr>
-          <td>Regalo</td>
-          <td>1</td>
-          <td>€5.00</td>
-          <td></td>
-        </tr>`;
-        tbody.innerHTML += giftRow;
-        document.getElementById('total').innerText = `${getLabel('total', document.getElementById('lang').value)}: €0.00`;
-      } else {
-        document.getElementById('total').innerText = `${getLabel('total', document.getElementById('lang').value)}: €${total.toFixed(2)}`;
-      }
-    }
+  // Se il totale è maggiore di 5€, applica il regalo (sconto 5€)
+  if (total > 5) {
+    // Mostra la riga regalo (5 euro di sconto)
+    const discountRow = `<tr>
+      <td>Regalo</td>
+      <td>1</td>
+      <td>-€5.00</td>
+      <td></td>
+    </tr>`;
+    tbody.innerHTML += discountRow;
+
+    // Aggiungi lo sconto al totale
+    total -= 5; // Sconto di 5€
+    document.getElementById('total').innerText = `Totale: €${total.toFixed(2)}`;
+  } else {
+    document.getElementById('total').innerText = `Totale: €${total.toFixed(2)}`;
+  }
+}
 
     function showToast(message, duration = 7000) {
       const toast = document.getElementById('toastOverlay');
