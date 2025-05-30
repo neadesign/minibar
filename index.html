@@ -368,7 +368,7 @@
       }, duration);
     }
 
-    async function sendOrder() {
+   async function sendOrder() {
   const button = document.getElementById('checkout-button');
   button.disabled = true;
 
@@ -377,56 +377,39 @@
   let total = cart.reduce((sum, item) => sum + item.price * item.qty, 0).toFixed(2);
 
   if (total <= 0) {
-    showToast(getLabel('empty', lang), 4000);
+    // Se il totale è zero o inferiore, mostra il pop-up di regalo e non chiamare Stripe
+    showToast(getLabel('smallgift', lang), 4000);
     button.disabled = false;
     button.innerText = getLabel('checkout', lang);
     return;
   }
 
-  // Check for free gift logic: If total < 5€ (including free gift), show pop-up and don't call Stripe
-  if (total < 5) {
+  if (total < 0.5) {
+    // Se il totale è inferiore a 5€, tratta come regalo
     showToast(getLabel('smallgift', lang), 4000);
-    // After 4 seconds, go to the "thank you" page
-    setTimeout(() => {
-      window.location.href = 'https://neadesign.github.io/minibar/thank-you.html';  // Redirect to thank-you page
-    }, 4000);
     button.disabled = false;
     button.innerText = getLabel('checkout', lang);
-    return;  // Skip Stripe call
+    return;
   }
 
-  // If the total is more than 5€, apply the 5€ gift discount
-  const discount = 5.00;
-  total = (total - discount).toFixed(2);
-
-  // Now we proceed to Stripe payment
-  const payload = {
-    type: 'minibar',
-    source: 'minibar',
-    cart,
-    orderDetails,
-    total,
-    orderDetailsShort: orderDetails,
-    orderDetailsLong: orderDetails,
-    delivery_date: '2025-12-31',
-    phone: '-'
-  };
-
   try {
+    // Chiamata a Stripe solo per ordini superiori a 5€
     const response = await fetch('https://minibar.onrender.com/create-checkout-session', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify({
+        total,
+        orderDetailsShort: orderDetails,
+        orderDetailsLong: orderDetails,
+        delivery_date: '2025-12-31',
+        phone: '-'
+      })
     });
-    const result = await response.json();
-    if (result && result.url) {
-      showToast(getLabel('popup', lang), 7000);
-      button.disabled = false;
-      button.innerText = getLabel('checkout', lang);
 
-      setTimeout(() => {
-        window.location.href = result.url;
-      }, 7000);
+    const result = await response.json();
+    if (result.url) {
+      // Se la risposta contiene una URL, esegui il reindirizzamento
+      window.location.href = result.url;
     } else {
       throw new Error('URL mancante nella risposta.');
     }
