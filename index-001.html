@@ -313,11 +313,11 @@
       updateCart();
     }
 
-    function updateCart() {
+   function updateCart() {
   const tbody = document.querySelector('#cart-table tbody');
   tbody.innerHTML = '';
   let total = 0;
-  
+
   // Calcola il totale
   cart.forEach((item, index) => {
     total += item.price * item.qty;
@@ -331,7 +331,9 @@
   });
 
   // Se il totale è maggiore di 5€, applica il regalo (sconto 5€)
-  if (total > 5) {
+  if (total < 5) {
+    // Se l'ordine è inferiore a 5€, il totale diventa 0
+    total = 0;
     // Mostra la riga regalo (5 euro di sconto)
     const discountRow = `<tr>
       <td>Regalo</td>
@@ -340,14 +342,22 @@
       <td></td>
     </tr>`;
     tbody.innerHTML += discountRow;
-
-    // Aggiungi lo sconto al totale
-    total -= 5; // Sconto di 5€
-    document.getElementById('total').innerText = `Totale: €${total.toFixed(2)}`;
+    document.getElementById('total').innerText = `${getLabel('total', document.getElementById('lang').value)}: €${total.toFixed(2)}`;
   } else {
-    document.getElementById('total').innerText = `Totale: €${total.toFixed(2)}`;
+    // Se il totale è maggiore di 5€, applica lo sconto di 5€ ma non scendere sotto 0€
+    const discountRow = `<tr>
+      <td>Regalo</td>
+      <td>1</td>
+      <td>-€5.00</td>
+      <td></td>
+    </tr>`;
+    tbody.innerHTML += discountRow;
+    total -= 5;  // Applica lo sconto di 5€
+    total = Math.max(total, 0);  // Assicura che il totale non scenda sotto 0€
+    document.getElementById('total').innerText = `${getLabel('total', document.getElementById('lang').value)}: €${total.toFixed(2)}`;
   }
 }
+
 
     function showToast(message, duration = 7000) {
       const toast = document.getElementById('toastOverlay');
