@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minibar Neaspace Auto-Check-out</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.4.1/papaparse.min.js"></script>
+  <script src="https://js.stripe.com/v3/"></script>
+  <style>
+    body { font-family: 'Inter', sans-serif; background: #fcfcfc; margin: 0; padding: 20px; color: #333; }
+    header { text-align: center; margin-bottom: 30px; }
+    header img { height: 60px; margin-bottom: 10px; }
+    h1 { font-size: 36px; font-weight: 700; text-align: center; margin-bottom: 10px; }
+    .lang-select { text-align: center; margin-bottom: 30px; }
+    .lang-select span { cursor: pointer; font-size: 18px; margin: 0 10px; }
+    .product-list { display: block; max-width: 500px; margin: 0 auto; }
+    .product { display: flex; justify-content: space-between; align-items: center; background: #fff; border-bottom: 1px solid #eee; padding: 12px 16px; font-size: 14px; }
+    .product h3 { margin: 0; font-size: 14px; font-weight: 600; flex: 1; }
+    .product p { margin: 0 16px; font-size: 14px; font-weight: bold; width: 60px; text-align: right; }
+    .product input[type="number"] { width: 50px; padding: 4px; font-size: 13px; margin-right: 8px; }
+    .product button { padding: 6px 10px; font-size: 13px; border-radius: 6px; }
+    .remove-btn { background-color: #e74c3c; border-radius: 6px; padding: 4px 8px; color: white; font-size: 14px; }
+    .cart { margin-top: 60px; max-width: 800px; margin-left: auto; margin-right: auto; }
+    .cart h2 { font-size: 24px; margin-bottom: 10px; }
+    table { width: 100%; border-collapse: collapse; background: white; border-radius: 12px; font-size: 15px; }
+    th, td { border: 1px solid #eee; padding: 12px; text-align: center; }
+    th { background-color: #f9f9f9; font-weight: bold; }
+    #total { text-align: right; margin-top: 15px; font-size: 20px; font-weight: bold; }
+    .checkout { margin-top: 30px; text-align: center; }
+    .checkout button { background-color: #0077cc; font-size: 18px; padding: 14px 36px; border-radius: 12px; font-weight: 700; color: white; }
+    #toastOverlay { display: none; position: fixed; top: 40%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.85); color: #fff; padding: 20px 30px; border-radius: 10px; font-size: 16px; z-index: 10000; text-align: center; max-width: 80%; }
+  </style>
+</head>
+<body>
+
+<div id="toastOverlay">Stai per essere inoltrato alla pagina di pagamento...</div>
+
+<header>
+  <img src="https://raw.githubusercontent.com/neadesign/Zielinska/refs/heads/main/favicon.png" alt="Nea logo">
+  <h1 id="page-title">Minibar Neaspace Auto Check-out</h1>
+</header>
+
+<div class="lang-select">
+  <span onclick="setLang('IT')">🇮🇹 Italiano</span>
+  <span onclick="setLang('EN')">🇬🇧 English</span>
+  <span onclick="setLang('FR')">🇫🇷 Français</span>
+  <span onclick="setLang('ES')">🇪🇸 Español</span>
+</div>
+<input type="hidden" id="lang" value="IT">
+
+<div id="products" class="product-list"></div>
+
+<div class="cart">
+  <h2 id="cart-title">Il tuo carrello</h2>
+  <table id="cart-table">
+    <thead>
+      <tr>
+        <th id="th-product">Prodotto</th>
+        <th id="th-qty">Quantità</th>
+        <th id="th-price">Prezzo</th>
+        <th></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <h3 id="total">Totale: €0.00</h3>
+</div>
+
+<div class="checkout">
+  <button id="checkout-button" onclick="sendOrder()">Invia ordine / Paga</button>
+</div>
+
+<script>
+const sheetURL = 'https://neadesign.github.io/minibar/listino.csv';
+let cart = [];
+
+function getLabel(type, lang) {
+  const labels = {
+    title: { IT: 'Minibar Neaspace Auto Check-out', EN: 'Minibar Neaspace Auto Check-out', FR: 'Minibar Neaspace Auto Check-out', ES: 'Minibar Neaspace Auto Check-out' },
+    cart: { IT: 'Il tuo carrello', EN: 'Your Cart', FR: 'Votre Panier', ES: 'Tu Carrito' },
+    prod: { IT: 'Prodotto', EN: 'Product', FR: 'Produit', ES: 'Producto' },
+    qty: { IT: 'Quantità', EN: 'Quantity', FR: 'Quantité', ES: 'Cantidad' },
+    price: { IT: 'Prezzo', EN: 'Price', FR: 'Prix', ES: 'Precio' },
+    checkout: { IT: 'Invia ordine / Paga', EN: 'Send order / Pay', FR: 'Envoyer la commande / Payer', ES: 'Enviar pedido / Pagar' },
+    popup: {
+      IT: 'Stai per essere inoltrato alla pagina di pagamento...',
+      EN: 'You are about to be redirected to the payment page...',
+      FR: 'Vous allez être redirigé vers la page de paiement...',
+      ES: 'Estás a punto de ser redirigido a la página de pago...'
+    },
+    empty: {
+      IT: "Per favore aggiungi almeno un prodotto al carrello.",
+      EN: "Please add at least one item to the cart.",
+      FR: "Veuillez ajouter au moins un produit au panier.",
+      ES: "Por favor, añade al menos un producto al carrito."
+    },
+    add: { IT: 'Aggiungi', EN: 'Add', FR: 'Ajouter', ES: 'Añadir' }
+  };
+  return labels[type][lang];
+}
