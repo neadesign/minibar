@@ -249,7 +249,7 @@ async function sendOrder() {
       // 🚀 NUOVA LOGICA: sotto 0.50 euro, no pagamento → thank you page
       showToast(getLabel('popup', lang), 3000);
       setTimeout(() => {
-        window.location.href = 'https://neadesign.github.io/minibar/thank-you.html';
+        window.location.href = 'https://neadesign.github.io/minibar/thankyou50.html';
       }, 3000);
     } else {
       // 🚀 SOPRA 0.50 euro → normale pagamento con Stripe
