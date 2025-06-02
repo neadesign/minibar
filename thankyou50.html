@@ -1,1 +1,149 @@
-sw1qs1s
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Grazie per aver usato il nostro servizio</title>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      background-color: #f4f7fb;
+      text-align: center;
+      padding: 60px;
+      margin: 0;
+    }
+
+    h1 {
+      font-size: 3em;
+      color: #333;
+      margin-bottom: 20px;
+    }
+
+    .confirmation-message {
+      background-color: #e8f5e9;
+      color: #388e3c;
+      border: 1px solid #388e3c;
+      padding: 30px;
+      margin-top: 30px;
+      display: inline-block;
+      border-radius: 8px;
+      font-size: 1.4em;
+      max-width: 600px;
+      width: 100%;
+    }
+
+    .confirmation-message span {
+      font-size: 2em;
+      vertical-align: middle;
+      margin-right: 15px;
+    }
+
+    .note-message {
+      margin-top: 20px;
+      font-size: 1.2em;
+      color: #555;
+    }
+
+    .back-link {
+      font-size: 1.3em;
+      color: #0077cc;
+      margin-top: 30px;
+      display: inline-block;
+      text-decoration: none;
+      padding: 12px 30px;
+      border: 2px solid #0077cc;
+      border-radius: 30px;
+      transition: all 0.3s ease;
+    }
+
+    .back-link:hover {
+      background-color: #0077cc;
+      color: white;
+      transform: scale(1.05);
+      text-decoration: none;
+    }
+
+    .back-link:before {
+      content: "←";
+      margin-right: 8px;
+      font-size: 1.4em;
+    }
+
+    .lang-select {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .lang-select span {
+      cursor: pointer;
+      font-size: 18px;
+      margin: 0 10px;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="lang-select">
+    <span onclick="setLang('IT')">🇮🇹 Italiano</span>
+    <span onclick="setLang('EN')">🇬🇧 English</span>
+    <span onclick="setLang('FR')">🇫🇷 Français</span>
+    <span onclick="setLang('ES')">🇪🇸 Español</span>
+  </div>
+
+  <h1 id="main-title">Grazie per aver usato il nostro servizio di autocheck-out minibar!</h1>
+
+  <div class="confirmation-message" id="confirm-msg">
+    <span>✔️</span> Grazie per aver utilizzato il nostro servizio di autocheck-out minibar! Torna presto per un'altra esperienza.
+  </div>
+
+  <div class="note-message" id="note-msg">
+    Gli ordini inferiori a 50 centesimi sono offerti dalla casa.
+  </div>
+
+  <br><br>
+  <a href="https://neaspace.myweb.smoobu.com/" class="back-link" id="back-link">Torna al sito Neaspace</a>
+
+  <script>
+    function setLang(code) {
+      const labels = {
+        title: {
+          IT: 'Grazie per aver usato il nostro servizio di autocheck-out minibar!',
+          EN: 'Thank you for using our minibar self check-out service!',
+          FR: 'Merci d\'avoir utilisé notre service d\'autocheck-out minibar!',
+          ES: '¡Gracias por utilizar nuestro servicio de autocheck-out del minibar!'
+        },
+        confirm: {
+          IT: '✔️ Grazie per aver utilizzato il nostro servizio di autocheck-out minibar! Torna presto per un\'altra esperienza.',
+          EN: '✔️ Thank you for using our minibar self check-out service! Come back soon for another experience.',
+          FR: '✔️ Merci d\'avoir utilisé notre service d\'autocheck-out minibar! Revenez bientôt pour une autre expérience.',
+          ES: '✔️ ¡Gracias por utilizar nuestro servicio de autocheck-out del minibar! Vuelve pronto para otra experiencia.'
+        },
+        note: {
+          IT: 'Gli ordini inferiori a 50 centesimi sono offerti dalla casa.',
+          EN: 'Orders under 50 cents are complimentary.',
+          FR: 'Les commandes inférieures à 50 centimes sont offertes par la maison.',
+          ES: 'Los pedidos inferiores a 50 céntimos corren por cuenta de la casa.'
+        },
+        back: {
+          IT: 'Torna al sito Neaspace',
+          EN: 'Back to Neaspace site',
+          FR: 'Retour au site Neaspace',
+          ES: 'Volver al sitio de Neaspace'
+        }
+      };
+
+      document.getElementById('main-title').innerText = labels.title[code];
+      document.getElementById('confirm-msg').innerHTML = '<span>✔️</span> ' + labels.confirm[code];
+      document.getElementById('note-msg').innerText = labels.note[code];
+      document.getElementById('back-link').innerText = labels.back[code];
+    }
+
+    // Carica lingua IT di default
+    window.onload = function() {
+      setLang('IT');
+    };
+  </script>
+
+</body>
+</html>
