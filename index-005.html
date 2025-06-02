@@ -210,12 +210,6 @@ function updateCart() {
     tbody.innerHTML += row;
   });
 
-  // 🚀 Nuova logica: sotto 0.50 euro regalo, sopra si paga normale
-  if (total < 0.50 && total > 0) {
-    tbody.innerHTML += `<tr><td>Regalo</td><td>1</td><td>-€${total.toFixed(2)}</td><td></td></tr>`;
-    total = 0;
-  }
-
   const lang = document.getElementById('lang').value;
   document.getElementById('total').innerText = `${getLabel('price', lang)}: €${total.toFixed(2)}`;
 }
@@ -251,21 +245,30 @@ async function sendOrder() {
   };
 
   try {
-    const response = await fetch('https://minibar.onrender.com/create-checkout-session', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    });
-    const result = await response.json();
-    console.log('✅ Risultato:', result);
-
-    if (result.redirect) {
-      window.location.href = result.redirect;
-    } else if (result.url) {
-      showToast(getLabel('popup', lang), 7000);
-      setTimeout(() => { window.location.href = result.url; }, 7000);
+    if (total < 0.50) {
+      // 🚀 NUOVA LOGICA: sotto 0.50 euro, no pagamento → thank you page
+      showToast(getLabel('popup', lang), 3000);
+      setTimeout(() => {
+        window.location.href = 'https://neadesign.github.io/minibar/thanks.html';
+      }, 3000);
     } else {
-      throw new Error('Risposta inattesa dal server.');
+      // 🚀 SOPRA 0.50 euro → normale pagamento con Stripe
+      const response = await fetch('https://minibar.onrender.com/create-checkout-session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const result = await response.json();
+      console.log('✅ Risultato:', result);
+
+      if (result.redirect) {
+        window.location.href = result.redirect;
+      } else if (result.url) {
+        showToast(getLabel('popup', lang), 7000);
+        setTimeout(() => { window.location.href = result.url; }, 7000);
+      } else {
+        throw new Error('Risposta inattesa dal server.');
+      }
     }
   } catch (error) {
     console.error('Errore durante il checkout:', error);
@@ -273,6 +276,7 @@ async function sendOrder() {
     alert("Errore durante il checkout: " + error.message);
   }
 }
+
 
 window.onload = () => {
   const lang = document.getElementById('lang').value;
