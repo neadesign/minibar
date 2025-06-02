@@ -133,7 +133,13 @@ function getLabel(type, lang) {
       ES: "Por favor, añade al menos un producto al carrito."
     },
     add: { IT: 'Aggiungi', EN: 'Add', FR: 'Ajouter', ES: 'Añadir' },
-      };
+    note: {
+      IT: "Gli ordini fino a 0.5 euro sono offerti dalla casa. Per favore inviate comunque l'ordine, ci permette di aggiornare lo stock disponibile per i prossimi clienti. (Se avete consumato ovviamente… 😉)",
+      EN: "Orders under 0.5 euros are complimentary. Please send the order anyway, this helps us update available stock for future guests. (If you actually consumed, of course… 😉)",
+      FR: "Les commandes inférieures à 0.5 euros sont offertes par la maison. Merci d'envoyer quand même la commande, cela nous permet de mettre à jour le stock disponible pour les prochains clients. (Si vous avez consommé, bien entendu… 😉)",
+      ES: "Los pedidos inferiores a 0.5 euros corren por cuenta de la casa. Por favor envía el pedido igualmente, esto nos ayuda a actualizar el stock disponible para los próximos clientes. (Si realmente has consumido, por supuesto… 😉)"
+    }
+  };
   return labels[type][lang];
 }
 
@@ -204,12 +210,12 @@ function updateCart() {
     tbody.innerHTML += row;
   });
 
-  if (total < 5 && total > 0) {
+  if (total < 0.5 && total > 0) {
     tbody.innerHTML += `<tr><td>Regalo</td><td>1</td><td>-€${total.toFixed(2)}</td><td></td></tr>`;
     total = 0;
-  } else if (total >= 5) {
-    tbody.innerHTML += `<tr><td>Sconto Minibar</td><td>1</td><td>-€5.00</td><td></td></tr>`;
-    total -= 5;
+  } else if (total >= 0.5) {
+    tbody.innerHTML += `<tr><td>Sconto Minibar</td><td>1</td><td>-€0.50</td><td></td></tr>`;
+    total -= 0.5;
     total = Math.max(total, 0);
   }
 
