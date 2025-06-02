@@ -210,13 +210,10 @@ function updateCart() {
     tbody.innerHTML += row;
   });
 
-  if (total < 0.5 && total > 0) {
+  // 🚀 Nuova logica: sotto 0.50 euro regalo, sopra si paga normale
+  if (total < 0.50 && total > 0) {
     tbody.innerHTML += `<tr><td>Regalo</td><td>1</td><td>-€${total.toFixed(2)}</td><td></td></tr>`;
     total = 0;
-  } else if (total = 0.5) {
-    tbody.innerHTML += `<tr><td>Sconto Minibar</td><td>1</td><td>-€0.50</td><td></td></tr>`;
-    total -= 0.5;
-    total = Math.max(total, 0);
   }
 
   const lang = document.getElementById('lang').value;
