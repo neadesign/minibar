@@ -160,15 +160,23 @@ function updateLabels(lang) {
   document.getElementById('note-message').innerText = getLabel('note', lang);
 }
 
-function loadProducts() {
+ffunction loadProducts() {
   const lang = document.getElementById('lang').value;
+  const nameMap = {
+    IT: "Prodotto (IT)",
+    EN: "Product (EN)",
+    FR: "Produit (FR)",
+    ES: "Producto (ES)"
+  };
+  const nameKey = nameMap[lang];
+
   document.getElementById('products').innerHTML = '';
   Papa.parse(sheetURL, {
     download: true,
     header: true,
     complete: function(results) {
       results.data.forEach(item => {
-        const name = item[`Prodotto (${lang})`] || item["Prodotto (IT)"];
+        const name = item[nameKey] || item["Prodotto (IT)"];
         const price = parseFloat(item["Prezzo"]);
         if (!name || isNaN(price)) return;
         const productDiv = document.createElement('div');
@@ -184,6 +192,7 @@ function loadProducts() {
     }
   });
 }
+
 
 function addToCart(name, price, btn) {
   const qty = parseInt(btn.previousElementSibling.value);
