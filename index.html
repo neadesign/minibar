@@ -230,6 +230,12 @@ function showToast(message, duration = 7000) {
   toast.style.display = 'block';
   setTimeout(() => { toast.style.display = 'none'; }, duration);
 }
+function showLoader() {
+  document.getElementById('loaderOverlay').style.display = 'block';
+}
+function hideLoader() {
+  document.getElementById('loaderOverlay').style.display = 'none';
+}
 
 async function sendOrder() {
   const button = document.getElementById('checkout-button');
@@ -244,8 +250,9 @@ async function sendOrder() {
     return;
   }
 
-  // 👇 mostra SUBITO il toast di attesa
+  // 👇 mostra SUBITO il toast e il loader
   showToast(getLabel('popup', lang), 20000);
+  showLoader();
 
   const payload = {
     type: 'minibar',
@@ -261,6 +268,7 @@ async function sendOrder() {
     if (total < 0.50) {
       // sotto 0.50 → regalo
       setTimeout(() => {
+        hideLoader();
         window.location.href = 'https://neadesign.github.io/minibar/thankyou50.html';
       }, 3000);
     } else {
@@ -271,6 +279,8 @@ async function sendOrder() {
       });
       const result = await response.json();
       console.log('✅ Risultato:', result);
+
+      hideLoader();
 
       if (result.redirect) {
         window.location.href = result.redirect;
@@ -283,17 +293,48 @@ async function sendOrder() {
   } catch (error) {
     console.error('Errore durante il checkout:', error);
     button.disabled = false;
+    hideLoader();
     alert("Errore durante il checkout: " + error.message);
   }
 }
-
-
-
 window.onload = () => {
   const lang = document.getElementById('lang').value;
   updateLabels(lang);
   loadProducts();
 };
 </script>
+  <div id="loaderOverlay" style="
+  display:none;
+  position:fixed;
+  top:0;
+  left:0;
+  right:0;
+  bottom:0;
+  background: rgba(0,0,0,0.5);
+  z-index: 9999;
+  text-align:center;
+  padding-top: 30%;
+  color:white;
+  font-size:18px;
+">
+  <div style="
+    border: 6px solid #f3f3f3;
+    border-top: 6px solid #0077cc;
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 20px;
+    animation: spin 1s linear infinite;
+  "></div>
+  Attendere, caricamento...
+</div>
+
+<style>
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+</style>
+
 </body>
 </html>
