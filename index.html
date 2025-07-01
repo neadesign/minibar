@@ -145,6 +145,7 @@ function getLabel(type, lang) {
 
 function setLang(code) {
   document.getElementById('lang').value = code;
+  cart = []; // reset carrello
   updateLabels(code);
   loadProducts();
 }
