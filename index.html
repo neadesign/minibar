@@ -148,6 +148,7 @@ function setLang(code) {
   cart = []; // reset carrello
   updateLabels(code);
   loadProducts();
+  updateCart(); // forza refresh carrello vuoto sul DOM
 }
 
 function updateLabels(lang) {
