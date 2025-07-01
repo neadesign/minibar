@@ -252,8 +252,8 @@ async function sendOrder() {
   }
 
   // 👇 mostra SUBITO il toast e il loader
-  showToast(getLabel('popup', lang), 20000);
-  showLoader();
+  showToast(getLabel('popup', lang), 60000); // visibile “infinito”
+showLoader();
 
   const payload = {
     type: 'minibar',
@@ -283,13 +283,19 @@ async function sendOrder() {
 
       hideLoader();
 
-      if (result.redirect) {
-        window.location.href = result.redirect;
-      } else if (result.url) {
-        setTimeout(() => { window.location.href = result.url; }, 7000);
-      } else {
-        throw new Error('Risposta inattesa dal server.');
-      }
+if (result.redirect) {
+  hideLoader();
+  document.getElementById('toastOverlay').style.display = 'none';
+  window.location.href = result.redirect;
+} else if (result.url) {
+  setTimeout(() => {
+    hideLoader();
+    document.getElementById('toastOverlay').style.display = 'none';
+    window.location.href = result.url;
+  }, 7000);
+} else {
+  throw new Error('Risposta inattesa dal server.');
+}
     }
   } catch (error) {
     console.error('Errore durante il checkout:', error);
