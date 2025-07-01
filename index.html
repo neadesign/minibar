@@ -234,6 +234,9 @@ async function sendOrder() {
     return;
   }
 
+  // 👇 mostra SUBITO il toast di attesa
+  showToast(getLabel('popup', lang), 20000);
+
   const payload = {
     type: 'minibar',
     source: 'minibar',
@@ -246,13 +249,11 @@ async function sendOrder() {
 
   try {
     if (total < 0.50) {
-      // 🚀 NUOVA LOGICA: sotto 0.50 euro, no pagamento → thank you page
-      showToast(getLabel('popup', lang), 3000);
+      // sotto 0.50 → regalo
       setTimeout(() => {
         window.location.href = 'https://neadesign.github.io/minibar/thankyou50.html';
       }, 3000);
     } else {
-      // 🚀 SOPRA 0.50 euro → normale pagamento con Stripe
       const response = await fetch('https://minibar.onrender.com/create-checkout-session', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -264,7 +265,6 @@ async function sendOrder() {
       if (result.redirect) {
         window.location.href = result.redirect;
       } else if (result.url) {
-        showToast(getLabel('popup', lang), 7000);
         setTimeout(() => { window.location.href = result.url; }, 7000);
       } else {
         throw new Error('Risposta inattesa dal server.');
@@ -276,6 +276,7 @@ async function sendOrder() {
     alert("Errore durante il checkout: " + error.message);
   }
 }
+
 
 
 window.onload = () => {
